@@ -5,6 +5,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    title: 'Coffee Log',
+    beans: [],
     user: {
       loggedIn: false,
       data: null,
@@ -22,6 +24,9 @@ export default new Vuex.Store({
     SET_USER(state, data) {
       state.user.data = data;
     },
+    SET_BEANS(state, beans) {
+      state.beans = beans;
+    },
   },
   actions: {
     fetchUser({ commit }, user) {
@@ -35,6 +40,9 @@ export default new Vuex.Store({
       } else {
         commit('SET_USER', null);
       }
+    },
+    fetchBeans({ commit }, beans) {
+      commit('SET_BEANS', beans);
     },
   },
   modules: {

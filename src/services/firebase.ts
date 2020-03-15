@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
+import store from '@/store';
 
 const config = {
   apiKey: 'AIzaSyAmf5D6ea6FAUlWNGnfNXPqNkjOjGrwxQw',
@@ -21,6 +22,19 @@ const auth = firebase.auth();
 const beansCollection = db.collection('beans');
 const brewsCollection = db.collection('brews');
 const usersCollection = db.collection('users');
+
+beansCollection.onSnapshot((beansRef) => {
+  const beans: any[] = [];
+
+  beansRef.forEach((doc) => {
+    const bean: any = doc.data();
+    bean.id = doc.id;
+
+    beans.push(bean);
+  });
+
+  store.dispatch('fetchBeans', beans);
+});
 
 export {
   auth,
