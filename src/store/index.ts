@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import Bean from '@/models/beans';
 
 Vue.use(Vuex);
 
@@ -16,6 +17,7 @@ export default new Vuex.Store({
     user(state) {
       return state.user;
     },
+    getBeanById: (state) => (id: string) => state.beans.find((bean: Bean) => bean.id === id),
   },
   mutations: {
     SET_LOGGED_IN(state, value) {

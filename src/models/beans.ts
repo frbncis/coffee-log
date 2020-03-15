@@ -1,4 +1,6 @@
 export default class Bean {
+  id!: string;
+
   name!: string;
 
   roaster!: string;

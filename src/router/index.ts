@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Beans from '../views/Beans.vue';
 import Home from '../views/Home.vue';
 
 Vue.use(VueRouter);
@@ -28,6 +27,11 @@ const routes = [
     path: '/beans',
     name: 'Beans',
     component: () => import(/* webpackChunkName: "beans" */ '../views/Beans.vue'),
+  },
+  {
+    path: '/beans/:beanId',
+    name: 'Bean',
+    component: () => import(/* webpackChunkName: "beans" */ '../views/Bean.vue'),
   },
   {
     path: '/beans/create',

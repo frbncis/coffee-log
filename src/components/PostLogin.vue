@@ -23,7 +23,7 @@
         </v-list-item>
         <v-list-item link @click="() => this.$router.push({ name: 'Brews' })">
           <v-list-item-action>
-            <v-icon>mdi-free-breakfast</v-icon>
+            <v-icon>mdi-coffee</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Brews</v-list-item-title>
