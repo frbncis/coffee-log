@@ -24,7 +24,7 @@
         />
 
         <v-combobox
-          v-model="beanModel.varietal"
+          v-model="beanModel.process"
           :items="process"
           label="Process"
           outlined
@@ -61,6 +61,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Bean from '@/models/beans';
+import { beansCollection } from '@/services/firebase';
 
 export default Vue.extend({
   name: 'CreateBeans',
@@ -94,8 +95,9 @@ export default Vue.extend({
     ],
   }),
   methods: {
-    saveBean() {
+    async saveBean() {
       console.log('Save bean!', JSON.stringify(this.beanModel));
+      await beansCollection.add({ ...this.beanModel });
     },
   },
 });
