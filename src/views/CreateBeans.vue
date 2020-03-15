@@ -47,11 +47,22 @@
 
         <v-file-input
           id="bag-image-upload"
+          v-if="beanModel.imageUrl == null"
           label="Bag"
           outlined
           prepend-icon="mdi-camera"
           @change="bagImageChanged"
         />
+
+        <v-card
+          v-else
+          class="mb-5"
+        >
+          <v-img
+            height="125"
+            :src="beanModel.imageUrl"
+          />
+        </v-card>
 
         <v-btn
           @click="saveBean"
@@ -109,13 +120,26 @@ export default Vue.extend({
     varieties: [
       'Bourbon',
       'Catuai',
+      'Heirloom',
       'Red',
+      'Pacas',
+      'Various',
     ],
   }),
-  mounted() {
-    store.commit('SET_TITLE', 'Add Beans');
+  created() {
+    if (this.$route.query.beanId) {
+      const { beanId } = this.$route.query;
+      store.commit('SET_TITLE', 'Edit Beans');
+
+      this.beanModel = this.getBeanById()(beanId);
+    } else {
+      store.commit('SET_TITLE', 'Add Beans');
+    }
   },
   methods: {
+    ...mapGetters({
+      getBeanById: 'getBeanById',
+    }),
     bagImageChanged(imageFile: File) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
@@ -125,19 +149,26 @@ export default Vue.extend({
       this.saving = true;
 
       console.log('Save bean!', JSON.stringify(this.beanModel));
-      const beanImageUrl = await this.uploadBeanImageFile();
 
-      console.log('Image uploaded', beanImageUrl);
+      if (this.beanImageFile) {
+        const beanImageUrl = await this.uploadBeanImageFile();
 
-      this.beanModel.imageUrl = beanImageUrl;
+        console.log('Image uploaded', beanImageUrl);
 
-      await beansCollection.add({ ...this.beanModel });
+        this.beanModel.imageUrl = beanImageUrl;
+      }
+
+      if (this.beanModel.id) {
+        await beansCollection.doc(this.beanModel.id).set({ ...this.beanModel });
+      } else {
+        await beansCollection.add({ ...this.beanModel });
+      }
 
       this.$router.push({ name: 'Beans' });
     },
     async uploadBeanImageFile(): Promise<string> {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const file = this.beanImageFile!;
+      const file = this.beanImageFile! as File;
 
       const storageRef = storage.ref(`images/${file.name}`);
 

@@ -10,6 +10,12 @@
       </v-btn>
 
       <v-spacer></v-spacer>
+      <v-btn
+        @click="() => goToEditBean(bean.id)"
+        icon
+      >
+        <v-icon>mdi-pencil</v-icon>
+      </v-btn>
       <v-btn icon>
         <v-icon>mdi-heart</v-icon>
       </v-btn>
@@ -34,7 +40,7 @@
 
     <v-divider class="mx-4"></v-divider>
 
-    <v-card-title>Details</v-card-title>
+    <v-card-title>Origin</v-card-title>
 
     <v-list-item>
       <v-list-item-title>Country</v-list-item-title>
@@ -68,6 +74,9 @@ export default Vue.extend({
     ...mapGetters({
       getBeanById: 'getBeanById',
     }),
+    goToEditBean(beanId: string) {
+      this.$router.push({ name: 'CreateBeans', query: { beanId } });
+    },
   },
   data: () => ({
     bean: new Bean(),
