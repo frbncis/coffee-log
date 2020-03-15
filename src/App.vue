@@ -101,16 +101,9 @@
           dark
           small
           color="indigo"
+          @click="() => this.$router.push({ name: 'CreateBeans' })"
         >
           <v-icon>mdi-plus</v-icon>
-        </v-btn>
-        <v-btn
-          fab
-          dark
-          small
-          color="red"
-        >
-          <v-icon>mdi-delete</v-icon>
         </v-btn>
       </v-speed-dial>
     </v-content>
