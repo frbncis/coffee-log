@@ -11,6 +11,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
+import store from '../store';
 
 export default Vue.extend({
   name: 'Beans',
@@ -21,5 +22,8 @@ export default Vue.extend({
   },
   data: () => ({
   }),
+  mounted() {
+    store.commit('SET_TITLE', 'Beans');
+  },
 });
 </script>

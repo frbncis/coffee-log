@@ -62,6 +62,7 @@
 import Vue from 'vue';
 import Bean from '@/models/beans';
 import { beansCollection } from '@/services/firebase';
+import store from '@/store';
 
 export default Vue.extend({
   name: 'CreateBeans',
@@ -94,10 +95,15 @@ export default Vue.extend({
       'Red',
     ],
   }),
+  mounted() {
+    store.commit('SET_TITLE', 'Add Beans');
+  },
   methods: {
     async saveBean() {
       console.log('Save bean!', JSON.stringify(this.beanModel));
       await beansCollection.add({ ...this.beanModel });
+
+      this.$router.push({ name: 'Beans' });
     },
   },
 });

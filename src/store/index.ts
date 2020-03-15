@@ -27,6 +27,9 @@ export default new Vuex.Store({
     SET_BEANS(state, beans) {
       state.beans = beans;
     },
+    SET_TITLE(state, title) {
+      state.title = title;
+    },
   },
   actions: {
     fetchUser({ commit }, user) {
@@ -43,6 +46,9 @@ export default new Vuex.Store({
     },
     fetchBeans({ commit }, beans) {
       commit('SET_BEANS', beans);
+    },
+    setTitle({ commit }, title) {
+      commit('SET_TITLE', title);
     },
   },
   modules: {
