@@ -10,7 +10,9 @@ Vue.config.productionTip = false;
 
 let app: Vue;
 
-auth.onAuthStateChanged(() => {
+auth.onAuthStateChanged((user) => {
+  store.dispatch('fetchUser', user);
+
   if (!app) {
     new Vue({
       router,
