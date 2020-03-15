@@ -45,11 +45,20 @@
           placeholder="Origin Region"
         />
 
+        <v-file-input
+          id="bag-image-upload"
+          label="Bag"
+          outlined
+          prepend-icon="mdi-camera"
+          @change="bagImageChanged"
+        />
+
         <v-btn
           @click="saveBean"
           block
-          color="red"
+          color="success"
           dark
+          :loading="saving"
           large>
             Save
         </v-btn>
@@ -61,12 +70,19 @@
 <script lang="ts">
 import Vue from 'vue';
 import Bean from '@/models/beans';
-import { beansCollection } from '@/services/firebase';
+import { beansCollection, storage } from '@/services/firebase';
+import { mapGetters } from 'vuex';
 import store from '@/store';
 
 export default Vue.extend({
   name: 'CreateBeans',
+  computed: {
+    ...mapGetters({
+      user: 'user',
+    }),
+  },
   data: () => ({
+    beanImageFile: undefined,
     beanModel: new Bean(),
     roasters: [
       'Transcend Coffee & Roastery',
@@ -89,6 +105,7 @@ export default Vue.extend({
       'Natural',
       'Honey',
     ],
+    saving: false,
     varieties: [
       'Bourbon',
       'Catuai',
@@ -99,11 +116,36 @@ export default Vue.extend({
     store.commit('SET_TITLE', 'Add Beans');
   },
   methods: {
+    bagImageChanged(imageFile: File) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      this.beanImageFile = imageFile;
+    },
     async saveBean() {
+      this.saving = true;
+
       console.log('Save bean!', JSON.stringify(this.beanModel));
+      const beanImageUrl = await this.uploadBeanImageFile();
+
+      console.log('Image uploaded', beanImageUrl);
+
+      this.beanModel.imageUrl = beanImageUrl;
+
       await beansCollection.add({ ...this.beanModel });
 
       this.$router.push({ name: 'Beans' });
+    },
+    async uploadBeanImageFile(): Promise<string> {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const file = this.beanImageFile!;
+
+      const storageRef = storage.ref(`images/${file.name}`);
+
+      await storageRef.put(file);
+
+      const imageUrl = storageRef.getDownloadURL();
+
+      return imageUrl;
     },
   },
 });

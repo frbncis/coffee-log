@@ -10,4 +10,6 @@ export default class Bean {
   originCountry!: string;
 
   originRegion!: string;
+
+  imageUrl!: string;
 }

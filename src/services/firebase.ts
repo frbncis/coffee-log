@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
+import 'firebase/storage';
 import store from '@/store';
 
 const config = {
@@ -18,6 +19,7 @@ firebase.initializeApp(config);
 
 const db = firebase.firestore();
 const auth = firebase.auth();
+const storage = firebase.storage();
 
 const beansCollection = db.collection('beans');
 const brewsCollection = db.collection('brews');
@@ -39,6 +41,7 @@ beansCollection.onSnapshot((beansRef) => {
 export {
   auth,
   db,
+  storage,
   beansCollection,
   brewsCollection,
   usersCollection,
