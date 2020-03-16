@@ -1,3 +1,5 @@
+import Taste from '@/models/taste';
+
 export default class Brew {
   id!: string;
 
@@ -7,7 +9,7 @@ export default class Brew {
 
   brewMethod!: string;
 
-  brewTimeMilliseconds!: number;
+  brewTimeMilliseconds = 0;
 
   grindWeight!: number;
 
@@ -15,8 +17,11 @@ export default class Brew {
 
   grindSetting!: number;
 
+  public tasting: Taste;
+
   constructor(beanId: string) {
     this.brewDateTime = Date.now();
     this.beanId = beanId;
+    this.tasting = new Taste();
   }
 }

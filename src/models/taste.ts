@@ -1,19 +1,19 @@
 import Criterion from './criterion';
 
 export default class Taste {
-  aroma: Criterion;
+  public aroma: Criterion;
 
-  acidity: Criterion;
+  public acidity: Criterion;
 
-  sweetness: Criterion;
+  public sweetness: Criterion;
 
-  body: Criterion;
+  public body: Criterion;
 
-  finish: Criterion;
+  public finish: Criterion;
 
-  flavour: string[];
+  public flavour: string[];
 
-  tastiness: Criterion;
+  public tastiness: Criterion;
 
   constructor() {
     this.aroma = new Criterion('Aroma');

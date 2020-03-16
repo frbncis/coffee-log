@@ -1,11 +1,11 @@
 export default class Criterion {
-  name: string;
+  public name: string;
 
-  quality!: string;
+  public quality = 0;
 
-  quantity!: string;
+  public quantity = 0;
 
-  notes!: string;
+  public notes = '';
 
   constructor(name: string) {
     this.name = name;

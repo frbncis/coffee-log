@@ -10,11 +10,16 @@
 
         <v-divider></v-divider>
 
-        <v-stepper-step step="3">Taste</v-stepper-step>
+        <v-stepper-step
+          :complete="brewStep > 3"
+          step="3"
+        >
+          Taste
+        </v-stepper-step>
 
         <v-divider />
 
-        <v-stepper-step step="3">Improve</v-stepper-step>
+        <v-stepper-step :complete="brewStep > 4" step="4">Improve</v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
@@ -54,15 +59,6 @@
                 </v-list-item-content>
               </v-list-item>
             </v-card>
-
-          <v-btn
-            @click="startBrewing"
-            block
-            color="primary"
-            class="mt-5"
-          >
-            Start Brewing
-          </v-btn>
         </v-stepper-content>
 
         <v-stepper-content step="2" class="text-center">
@@ -91,21 +87,10 @@
                   color="red"
                   @click="stopTimer"
                 >
-                  Pause
+                  Stop
                 </v-btn>
 
                 <v-btn
-                  v-if="!timerRunning"
-                  @click="startTasting"
-                  class="mb-5"
-                  block
-                  color="primary"
-                >
-                  Continue
-                </v-btn>
-
-                <v-btn
-                  v-if="!timerRunning"
                   @click="resetTimer"
                   class="mb-5"
                   block
@@ -129,8 +114,8 @@
             <v-list>
               <v-list-group
                 v-for="criteria in tasteCriterion"
-                :key="criteria.title"
-                v-model="criteria.active"
+                :key="criteria.name"
+                v-model="criterionIsExpandedState[criteria.name]"
                 :prepend-icon="criteria.action"
                 no-action
               >
@@ -173,9 +158,36 @@
             </v-list>
           </v-card>
         </v-stepper-content>
+
+        <v-stepper-content step="4">
+          <v-card>
+            <v-img
+              :src="require('@/assets/coffee-compass.jpg')"
+            />
+          </v-card>
+        </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
 
+    <v-btn
+      v-if="hasBrewStepsRemaining"
+      :disabled="timerRunning"
+      block
+      color="primary"
+      class="mt-5 mb-5"
+      @click="nextBrewStep"
+    >
+      Continue
+    </v-btn>
+
+    <v-btn
+      v-else
+      block
+      color="secondary"
+      class="mt-5 mb-5"
+    >
+      Save
+    </v-btn>
   </v-container>
 </template>
 
@@ -185,7 +197,6 @@ import { Component, Watch } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
 import Bean from '@/models/beans';
 import Brew from '@/models/brew';
-import Taste from '@/models/taste';
 import SelectedBeanCard from '@/components/brews/selectedBeanCard.vue';
 import { Route } from 'vue-router';
 
@@ -200,9 +211,7 @@ import { Route } from 'vue-router';
 export default class CreateBrew extends Vue {
     selectedBean: Bean = new Bean();
 
-    brew!: Brew;
-
-    taste: Taste = new Taste();
+    brew: Brew = new Brew('');
 
     beanId!: string;
 
@@ -212,18 +221,19 @@ export default class CreateBrew extends Vue {
 
     timerIncrementTask!: number
 
-    timerMillisecondsElapsed = 0;
-
     timerTickMilliseconds = 100;
+
+    criterionIsExpandedState = {
+    }
 
     get tasteCriterion() {
       return [
-        { ...this.taste.tastiness, active: true },
-        { ...this.taste.aroma, active: false },
-        { ...this.taste.acidity, active: false },
-        { ...this.taste.sweetness, active: false },
-        { ...this.taste.body, active: false },
-        { ...this.taste.finish, active: false },
+        this.brew.tasting.tastiness,
+        this.brew.tasting.aroma,
+        this.brew.tasting.acidity,
+        this.brew.tasting.sweetness,
+        this.brew.tasting.body,
+        this.brew.tasting.finish,
       ];
     }
 
@@ -241,11 +251,11 @@ export default class CreateBrew extends Vue {
     }
 
     get timeElapsedFormatted() {
-      const millis = (this.timerMillisecondsElapsed % 1000);
-      const second = Math.floor((this.timerMillisecondsElapsed / 1000) % 60);
-      const minute = Math.floor((this.timerMillisecondsElapsed / (1000 * 60)) % 60);
+      const millis = (this.brew.brewTimeMilliseconds % 1000) / 10;
+      const second = Math.floor((this.brew.brewTimeMilliseconds / 1000) % 60);
+      const minute = Math.floor((this.brew.brewTimeMilliseconds / (1000 * 60)) % 60);
 
-      return `${this.formatTimerFragment(minute, 2)}:${this.formatTimerFragment(second, 2)}:${this.formatTimerFragment(millis, 3)}`;
+      return `${this.formatTimerFragment(minute, 2)}:${this.formatTimerFragment(second, 2)}:${this.formatTimerFragment(millis, 2)}`;
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -259,14 +269,12 @@ export default class CreateBrew extends Vue {
     @Mutation('SET_TITLE')
     setAppBarTitle!: (title: string) => void;
 
-    incrementTimer() {
-      this.timerMillisecondsElapsed += this.timerTickMilliseconds;
+    get hasBrewStepsRemaining() {
+      return this.brewStep < 4;
     }
 
-    startBrewing() {
-      const { beanId } = this;
-
-      this.$router.push({ name: 'CreateBrew', query: { beanId, brewStep: '2' } });
+    incrementTimer() {
+      this.brew.brewTimeMilliseconds += this.timerTickMilliseconds;
     }
 
     startTimer() {
@@ -275,7 +283,8 @@ export default class CreateBrew extends Vue {
     }
 
     resetTimer() {
-      this.timerMillisecondsElapsed = 0;
+      this.stopTimer();
+      this.brew.brewTimeMilliseconds = 0;
     }
 
     stopTimer() {
@@ -286,18 +295,20 @@ export default class CreateBrew extends Vue {
       }
     }
 
-    storeTimerValue() {
-      this.brew.brewTimeMilliseconds = this.timerMillisecondsElapsed;
+    nextBrewStep() {
+      console.log(JSON.stringify(this.brew));
+
+      if (this.hasBrewStepsRemaining) {
+        this.goToBrewStep(this.brewStepField + 1);
+      }
     }
 
-    startTasting() {
-      this.storeTimerValue();
-
+    goToBrewStep(nextStep: number) {
       const { beanId } = this;
-      this.$router.push({ name: 'CreateBrew', query: { beanId, brewStep: '3' } });
+      this.$router.push({ name: 'CreateBrew', query: { beanId, brewStep: nextStep.toString() } });
     }
 
-    mounted() {
+    created() {
       this.setAppBarTitle('Create Brew');
 
       if (this.$route.query.beanId) {
