@@ -16,6 +16,13 @@
         />
 
         <v-combobox
+          v-model="beanModel.tastingNotes"
+          multiple
+          placeholder="Tasting Notes"
+          outlined
+        />
+
+        <v-combobox
           v-model="beanModel.varietal"
           :items="varieties"
           label="Varietal"
@@ -43,6 +50,12 @@
           v-model="beanModel.originRegion"
           outlined
           placeholder="Origin Region"
+        />
+
+        <v-textarea
+          v-model="beanModel.story"
+          outlined
+          placeholder="Story"
         />
 
         <v-file-input
@@ -96,6 +109,7 @@ export default Vue.extend({
     beanImageFile: undefined,
     beanModel: new Bean(),
     roasters: [
+      'Discovery Coffee',
       'Transcend Coffee & Roastery',
       '49th Parallel Coffee Roasters',
       'Detour Coffee Roasters',
@@ -110,6 +124,7 @@ export default Vue.extend({
       'Guatamula',
       'Honduras',
       'Panama',
+      'Peru',
     ].sort(),
     process: [
       'Washed',
@@ -148,12 +163,8 @@ export default Vue.extend({
     async saveBean() {
       this.saving = true;
 
-      console.log('Save bean!', JSON.stringify(this.beanModel));
-
       if (this.beanImageFile) {
         const beanImageUrl = await this.uploadBeanImageFile();
-
-        console.log('Image uploaded', beanImageUrl);
 
         this.beanModel.imageUrl = beanImageUrl;
       }

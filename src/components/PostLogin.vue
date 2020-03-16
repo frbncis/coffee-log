@@ -61,7 +61,16 @@
       color="indigo"
       dark
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+      <v-app-bar-nav-icon
+        v-if="!showBack"
+        @click.stop="drawer = !drawer"
+      />
+      <v-app-bar-nav-icon
+        v-else
+        @click.stop="goHistoryBack"
+      >
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-app-bar-nav-icon>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
     </v-app-bar>
 
@@ -125,6 +134,7 @@ export default {
   computed: {
     ...mapState({
       title: 'title',
+      showBack: 'showBack',
     }),
   },
   props: {
@@ -134,5 +144,10 @@ export default {
     drawer: null,
     fab: false,
   }),
+  methods: {
+    goHistoryBack() {
+      this.$router.go(-1);
+    },
+  },
 };
 </script>

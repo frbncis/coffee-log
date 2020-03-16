@@ -7,6 +7,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     title: 'Coffee Log',
+    showBack: false,
     beans: [],
     user: {
       loggedIn: false,
@@ -31,6 +32,9 @@ export default new Vuex.Store({
     },
     SET_TITLE(state, title) {
       state.title = title;
+    },
+    SET_BACK_NAV_ICON(state, showBack) {
+      state.showBack = showBack;
     },
   },
   actions: {

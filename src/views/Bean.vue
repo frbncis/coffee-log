@@ -5,7 +5,10 @@
     <v-img :src="bean.imageUrl" />
 
     <v-card-actions>
-      <v-btn icon>
+      <v-btn
+        @click="() => goToCreateBrew(bean.id)"
+        icon
+      >
         <v-icon>mdi-coffee</v-icon>
       </v-btn>
 
@@ -31,11 +34,8 @@
       </v-list-item-content>
     </v-list-item>
 
-    <v-card-text>
-      alksdjflkadsjflsajfdlajdskfajdslfalksdjflkadsjflsajfdlajdskfajdslf
-      alksdjflkadsjflsajfdlajdskfajdslf
-      alksdjflkadsjflsajfdlajdskfajdslf
-      alksdjflkadsjflsajfdlajdskfajdslf
+    <v-card-text style="white-space: pre-line;">
+      {{ bean.story }}
     </v-card-text>
 
     <v-divider class="mx-4"></v-divider>
@@ -57,8 +57,12 @@
       <v-list-item-subtitle>{{ bean.process }}</v-list-item-subtitle>
     </v-list-item>
 
-    <!-- <v-divider class="mx-4"></v-divider> -->
+    <v-divider class="mx-4"></v-divider>
 
+    <v-card-title>
+      <v-list-item-title>Tasting Notes</v-list-item-title>
+      <v-list-item-subtitle>Rosehip, floral, raisin</v-list-item-subtitle>
+    </v-card-title>
   </v-card>
 </template>
 
@@ -74,6 +78,9 @@ export default Vue.extend({
     ...mapGetters({
       getBeanById: 'getBeanById',
     }),
+    goToCreateBrew(beanId: string) {
+      this.$router.push({ name: 'CreateBrew', query: { beanId } });
+    },
     goToEditBean(beanId: string) {
       this.$router.push({ name: 'CreateBeans', query: { beanId } });
     },

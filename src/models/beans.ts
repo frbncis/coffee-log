@@ -13,5 +13,9 @@ export default class Bean {
 
   originRegion!: string;
 
+  story!: string;
+
+  tastingNotes!: string[];
+
   imageUrl!: string;
 }

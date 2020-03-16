@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import store from '@/store';
 import Home from '../views/Home.vue';
 
 Vue.use(VueRouter);
@@ -24,6 +25,14 @@ const routes = [
     component: () => import(/* webpackChunkName: "brews" */ '../views/Brews.vue'),
   },
   {
+    path: '/brews/create',
+    name: 'CreateBrew',
+    component: () => import(/* webpackChunkName: "createBrew" */ '../views/brews/createBrew.vue'),
+    meta: {
+      showBackIcon: true,
+    },
+  },
+  {
     path: '/beans',
     name: 'Beans',
     component: () => import(/* webpackChunkName: "beans" */ '../views/Beans.vue'),
@@ -32,11 +41,17 @@ const routes = [
     path: '/beans/:beanId',
     name: 'Bean',
     component: () => import(/* webpackChunkName: "beans" */ '../views/Bean.vue'),
+    meta: {
+      showBackIcon: true,
+    },
   },
   {
     path: '/beans/create',
     name: 'CreateBeans',
     component: () => import(/* webpackChunkName: "createBeans" */ '../views/CreateBeans.vue'),
+    meta: {
+      showBackIcon: true,
+    },
   },
   {
     path: '/login',
@@ -48,6 +63,16 @@ const routes = [
 const router = new VueRouter({
   mode: 'history',
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.showBackIcon)) {
+    store.commit('SET_BACK_NAV_ICON', true);
+  } else {
+    store.commit('SET_BACK_NAV_ICON', false);
+  }
+
+  next();
 });
 
 export default router;
