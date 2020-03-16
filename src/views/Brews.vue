@@ -1,10 +1,31 @@
 <template>
   <v-container>
-    <v-row class="text-center">
+    <v-row>
       <v-col class="mb-4">
-        <h1 class="display-2 font-weight-bold mb-3">
-          Brews
-        </h1>
+        <v-card
+          v-for="brew in brewDetails"
+          :key="brew.id"
+        >
+          <v-list-item four-line>
+            <v-list-item-avatar
+              tile
+              size="180"
+              color="grey"
+            >
+              <v-img
+                :src="brew.bean.imageUrl"
+              />
+            </v-list-item-avatar>
+
+            <v-list-item-title>
+              {{ brew.bean.name }}
+            </v-list-item-title>
+
+            <v-card-text>
+              {{ brew.waterVolume }}
+            </v-card-text>
+          </v-list-item>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
@@ -12,61 +33,38 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Component } from 'vue-property-decorator';
+import { Mutation, State } from 'vuex-class';
+import { mapState } from 'vuex';
+import Brew from '../models/brew';
 
-export default Vue.extend({
-  name: 'Brews',
+@Component({
+  computed: {
+    ...mapState({
+      // brews: 'brews',
+      // beans: 'beans',
+    }),
+  },
+})
+export default class Brews extends Vue {
+  get brewDetails() {
+    return Object.keys(this.brews).map((key, index) => ({
+      ...this.brews[key],
+      bean: this.beans[this.brews[key].beanId],
+    }));
+  }
 
-  data: () => ({
-    ecosystem: [
-      {
-        text: 'vuetify-loader',
-        href: 'https://github.com/vuetifyjs/vuetify-loader',
-      },
-      {
-        text: 'github',
-        href: 'https://github.com/vuetifyjs/vuetify',
-      },
-      {
-        text: 'awesome-vuetify',
-        href: 'https://github.com/vuetifyjs/awesome-vuetify',
-      },
-    ],
-    importantLinks: [
-      {
-        text: 'Documentation',
-        href: 'https://vuetifyjs.com',
-      },
-      {
-        text: 'Chat',
-        href: 'https://community.vuetifyjs.com',
-      },
-      {
-        text: 'Made with Vuetify',
-        href: 'https://madewithvuejs.com/vuetify',
-      },
-      {
-        text: 'Twitter',
-        href: 'https://twitter.com/vuetifyjs',
-      },
-      {
-        text: 'Articles',
-        href: 'https://medium.com/vuetify',
-      },
-    ],
-    whatsNext: [
-      {
-        text: 'Explore components',
-        href: 'https://vuetifyjs.com/components/api-explorer',
-      },
-      {
-        text: 'Select a layout',
-        href: 'https://vuetifyjs.com/layout/pre-defined',
-      },
-      {
-        text: 'Frequently Asked Questions',
-        href: 'https://vuetifyjs.com/getting-started/frequently-asked-questions',
-      },
-    ],
-  }),
-});
+  @State
+  beans!: {[brewId: string]: Brew};
+
+  @State
+  brews!: {[brewId: string]: Brew};
+
+  @Mutation('SET_TITLE')
+  setAppBarTitle!: (title: string) => void;
+
+  created() {
+    this.setAppBarTitle('Brews');
+  }
+}
 </script>

@@ -1,4 +1,5 @@
 import Taste from '@/models/taste';
+import Improvement from '@/models/improvement';
 
 export default class Brew {
   id!: string;
@@ -17,11 +18,18 @@ export default class Brew {
 
   grindSetting!: number;
 
-  public tasting: Taste;
+  tasting: Taste;
+
+  improvements: Improvement[] = [];
 
   constructor(beanId: string) {
     this.brewDateTime = Date.now();
     this.beanId = beanId;
     this.tasting = new Taste();
+
+    this.improvements = [
+      new Improvement('Strength'),
+      new Improvement('Extraction'),
+    ];
   }
 }

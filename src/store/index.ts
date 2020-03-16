@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import Bean from '@/models/beans';
+import Brew from '@/models/brew';
 
 Vue.use(Vuex);
 
@@ -8,7 +9,8 @@ export default new Vuex.Store({
   state: {
     title: 'Coffee Log',
     showBack: false,
-    beans: [],
+    beans: {},
+    brews: {},
     user: {
       loggedIn: false,
       data: null,
@@ -18,7 +20,28 @@ export default new Vuex.Store({
     user(state) {
       return state.user;
     },
-    getBeanById: (state) => (id: string) => state.beans.find((bean: Bean) => bean.id === id),
+    getBeanById: (state) => (id: string) => (state.beans as {[beanId: string]: Bean })[id],
+    getMostRecentBrewByBeanId: (state) => (beanId: string) => {
+      const brews = state.brews as {[brewId: string]: Brew};
+
+      const brewsWithBeanId = Object.values(brews).filter((brew: Brew) => brew.beanId === beanId);
+
+      if (brewsWithBeanId.length === 0) {
+        return null;
+      }
+
+      const brewDates = brewsWithBeanId.map((brew) => brew.brewDateTime);
+
+      const mostRecentDate = Math.max.apply(
+        null,
+        brewDates,
+      );
+
+      const mostRecentBrewing = brewsWithBeanId
+        .filter((brew) => brew.brewDateTime === mostRecentDate)[0];
+
+      return mostRecentBrewing;
+    },
   },
   mutations: {
     SET_LOGGED_IN(state, value) {
@@ -29,6 +52,9 @@ export default new Vuex.Store({
     },
     SET_BEANS(state, beans) {
       state.beans = beans;
+    },
+    SET_BREWS(state, brews) {
+      state.brews = brews;
     },
     SET_TITLE(state, title) {
       state.title = title;
@@ -55,6 +81,9 @@ export default new Vuex.Store({
     },
     setTitle({ commit }, title) {
       commit('SET_TITLE', title);
+    },
+    fetchBrews({ commit }, brews) {
+      commit('SET_BREWS', brews);
     },
   },
   modules: {

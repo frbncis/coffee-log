@@ -26,16 +26,29 @@ const brewsCollection = db.collection('brews');
 const usersCollection = db.collection('users');
 
 beansCollection.onSnapshot((beansRef) => {
-  const beans: any[] = [];
+  const beans: any = {};
 
   beansRef.forEach((doc) => {
     const bean: any = doc.data();
     bean.id = doc.id;
 
-    beans.push(bean);
+    beans[bean.id] = bean;
   });
 
   store.dispatch('fetchBeans', beans);
+});
+
+brewsCollection.onSnapshot((brewsRef) => {
+  const brews: any = {};
+
+  brewsRef.forEach((doc) => {
+    const brew: any = doc.data();
+    brew.id = doc.id;
+
+    brews[brew.id] = brew;
+  });
+
+  store.dispatch('fetchBrews', brews);
 });
 
 export {

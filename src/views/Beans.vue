@@ -48,7 +48,6 @@ export default Vue.extend({
   }),
   methods: {
     goToBeanDetails(beanId: string) {
-      // console.log(beanId);
       this.$router.push({ name: 'Bean', params: { beanId } });
     },
   },

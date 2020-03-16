@@ -30,7 +30,28 @@
               class="mx-auto mt-5"
               outlined
             >
-              <v-card-title>Brew Setup</v-card-title>
+              <v-row cols="12" class="mx-auto">
+                <v-card-title>Brew Setup</v-card-title>
+                <v-spacer />
+
+                <v-card-actions>
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{on}">
+                      <v-btn
+                        icon
+                        class="mx-auth"
+                        v-on="on"
+                        @click.prevent="loadPreviewBrewSetup"
+                      >
+                        <v-icon>
+                          mdi-reload
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Load From Last Brewing</span>
+                  </v-tooltip>
+                </v-card-actions>
+              </v-row>
 
               <v-list-item three-line>
                 <v-list-item-content>
@@ -42,7 +63,7 @@
                   <v-text-field
                     v-model="brew.grindWeight"
                     type="number"
-                    placeholder="Coffee Grounds Weight (g)"
+                    placeholder="Dose (g)"
                   />
 
                   <v-text-field
@@ -65,7 +86,9 @@
           <v-card>
             <h1>{{ timeElapsedFormatted }}</h1>
 
-            <v-card-subtitle>Previous Brew Time: 0:00</v-card-subtitle>
+            <v-card-subtitle v-if="previousBrew">
+              Previous Brew Time: {{ formatTime(previousBrew.brewTimeMilliseconds) }}
+            </v-card-subtitle>
 
             <v-card-actions>
               <v-row>
@@ -165,6 +188,24 @@
               :src="require('@/assets/coffee-compass.jpg')"
             />
           </v-card>
+
+          <v-card>
+            <v-row justify="space-around">
+              <v-col cols="12">
+                <v-radio-group
+                  :row="true"
+                  v-for="improvement in brew.improvements"
+                  :key="improvement.parameter"
+                  :label="improvement.parameter"
+                  v-model="improvement.correction"
+                >
+                  <v-radio cols="3" label="Less" value="-1"></v-radio>
+                  <v-radio cols="3" label="Enough" value="0"></v-radio>
+                  <v-radio cols="3" label="More" value="1"></v-radio>
+                </v-radio-group>
+              </v-col>
+            </v-row>
+          </v-card>
         </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
@@ -185,6 +226,7 @@
       block
       color="secondary"
       class="mt-5 mb-5"
+      @click.prevent="saveBrew"
     >
       Save
     </v-btn>
@@ -194,11 +236,12 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component, Watch } from 'vue-property-decorator';
-import { Getter, Mutation } from 'vuex-class';
+import { Getter, Mutation, State } from 'vuex-class';
 import Bean from '@/models/beans';
 import Brew from '@/models/brew';
 import SelectedBeanCard from '@/components/brews/selectedBeanCard.vue';
 import { Route } from 'vue-router';
+import { brewsCollection } from '@/services/firebase';
 
 @Component({
   components: {
@@ -212,6 +255,8 @@ export default class CreateBrew extends Vue {
     selectedBean: Bean = new Bean();
 
     brew: Brew = new Brew('');
+
+    previousBrew!: Brew;
 
     beanId!: string;
 
@@ -251,9 +296,13 @@ export default class CreateBrew extends Vue {
     }
 
     get timeElapsedFormatted() {
-      const millis = (this.brew.brewTimeMilliseconds % 1000) / 10;
-      const second = Math.floor((this.brew.brewTimeMilliseconds / 1000) % 60);
-      const minute = Math.floor((this.brew.brewTimeMilliseconds / (1000 * 60)) % 60);
+      return this.formatTime(this.brew.brewTimeMilliseconds);
+    }
+
+    formatTime(milliseconds: number) {
+      const millis = (milliseconds % 1000) / 10;
+      const second = Math.floor((milliseconds / 1000) % 60);
+      const minute = Math.floor((milliseconds / (1000 * 60)) % 60);
 
       return `${this.formatTimerFragment(minute, 2)}:${this.formatTimerFragment(second, 2)}:${this.formatTimerFragment(millis, 2)}`;
     }
@@ -308,6 +357,38 @@ export default class CreateBrew extends Vue {
       this.$router.push({ name: 'CreateBrew', query: { beanId, brewStep: nextStep.toString() } });
     }
 
+    loadPreviewBrewSetup() {
+      if (this.previousBrew) {
+        this.brew = {
+          ...this.brew,
+          brewMethod: this.previousBrew.brewMethod,
+          grindWeight: this.previousBrew.grindWeight,
+          waterVolume: this.previousBrew.waterVolume,
+          grindSetting: this.previousBrew.grindSetting,
+        };
+      }
+    }
+
+    loadPreviousBrew() {
+      this.previousBrew = this.getMostRecentBrewByBeanId(this.beanId);
+    }
+
+    @State
+    beans!: {[beanId: string]: Bean};
+
+    @Getter
+    getMostRecentBrewByBeanId!: (beanId: string) => Brew;
+
+    async saveBrew() {
+      console.log(JSON.stringify(this.brew));
+
+      await brewsCollection.add(JSON.parse(JSON.stringify(this.brew)));
+
+      // await brewsCollection.add(Object.assign({}, { ...this.brew }));
+
+      this.$router.push({ name: 'Brews' });
+    }
+
     created() {
       this.setAppBarTitle('Create Brew');
 
@@ -317,6 +398,8 @@ export default class CreateBrew extends Vue {
         this.brew = new Brew(this.beanId);
 
         this.selectedBean = this.getBeanById(this.beanId);
+
+        this.loadPreviousBrew();
       }
 
       if (this.$route.query.brewStep) {
