@@ -345,8 +345,6 @@ export default class CreateBrew extends Vue {
     }
 
     nextBrewStep() {
-      console.log(JSON.stringify(this.brew));
-
       if (this.hasBrewStepsRemaining) {
         this.goToBrewStep(this.brewStepField + 1);
       }
@@ -380,11 +378,7 @@ export default class CreateBrew extends Vue {
     getMostRecentBrewByBeanId!: (beanId: string) => Brew;
 
     async saveBrew() {
-      console.log(JSON.stringify(this.brew));
-
       await brewsCollection.add(JSON.parse(JSON.stringify(this.brew)));
-
-      // await brewsCollection.add(Object.assign({}, { ...this.brew }));
 
       this.$router.push({ name: 'Brews' });
     }
