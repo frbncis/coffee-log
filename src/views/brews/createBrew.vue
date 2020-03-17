@@ -41,7 +41,7 @@
                         icon
                         class="mx-auth"
                         v-on="on"
-                        @click.prevent="loadPreviewBrewSetup"
+                        @click.prevent="populateSetupFromPreviousBrew"
                       >
                         <v-icon>
                           mdi-reload
@@ -226,7 +226,7 @@
       block
       color="secondary"
       class="mt-5 mb-5"
-      @click.prevent="saveBrew"
+      @click.prevent="completeBrew"
     >
       Save
     </v-btn>
@@ -236,7 +236,9 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component, Watch } from 'vue-property-decorator';
-import { Getter, Mutation, State } from 'vuex-class';
+import {
+  Mutation, State, Action,
+} from 'vuex-class';
 import Bean from '@/models/beans';
 import Brew from '@/models/brew';
 import SelectedBeanCard from '@/components/brews/selectedBeanCard.vue';
@@ -256,7 +258,7 @@ export default class CreateBrew extends Vue {
 
     brew: Brew = new Brew('');
 
-    previousBrew!: Brew;
+    previousBrew: Brew = new Brew('');
 
     beanId!: string;
 
@@ -312,8 +314,8 @@ export default class CreateBrew extends Vue {
       return fragment.toLocaleString('en-US', { minimumIntegerDigits, useGrouping: false });
     }
 
-    @Getter
-    getBeanById!: (beanId: string) => Bean;
+    @Action
+    getBeanById!: (beanId: string) => Promise<Bean>;
 
     @Mutation('SET_TITLE')
     setAppBarTitle!: (title: string) => void;
@@ -344,18 +346,18 @@ export default class CreateBrew extends Vue {
       }
     }
 
-    nextBrewStep() {
+    async nextBrewStep() {
       if (this.hasBrewStepsRemaining) {
         this.goToBrewStep(this.brewStepField + 1);
+        await this.saveBrew();
       }
     }
 
     goToBrewStep(nextStep: number) {
-      const { beanId } = this;
-      this.$router.push({ name: 'CreateBrew', query: { beanId, brewStep: nextStep.toString() } });
+      this.$router.push({ name: 'CreateBrew', query: { ...this.$route.query, brewStep: nextStep.toString() } });
     }
 
-    loadPreviewBrewSetup() {
+    populateSetupFromPreviousBrew() {
       if (this.previousBrew) {
         this.brew = {
           ...this.brew,
@@ -367,38 +369,57 @@ export default class CreateBrew extends Vue {
       }
     }
 
-    loadPreviousBrew() {
-      this.previousBrew = this.getMostRecentBrewByBeanId(this.beanId);
+    async loadPreviousBrew() {
+      this.previousBrew = await this.getMostRecentBrewByBeanId(this.beanId);
     }
 
     @State
     beans!: {[beanId: string]: Bean};
 
-    @Getter
-    getMostRecentBrewByBeanId!: (beanId: string) => Brew;
+    @Action
+    getMostRecentBrewByBeanId!: (beanId: string) => Promise<Brew>;
 
-    async saveBrew() {
-      await brewsCollection.add(JSON.parse(JSON.stringify(this.brew)));
+    @Action
+    getBrewById!: (brewId: string) => Promise<Brew>;
+
+    async completeBrew() {
+      this.brew.completed = true;
+
+      await this.saveBrew();
 
       this.$router.push({ name: 'Brews' });
     }
 
-    created() {
-      this.setAppBarTitle('Create Brew');
+    async saveBrew() {
+      if (this.brew.id) {
+        await brewsCollection.doc(this.brew.id).update(JSON.parse(JSON.stringify(this.brew)));
+      } else {
+        const document = await brewsCollection.add(JSON.parse(JSON.stringify(this.brew)));
 
-      if (this.$route.query.beanId) {
-        this.beanId = this.$route.query.beanId as string;
+        this.brew.id = document.id;
 
-        this.brew = new Brew(this.beanId);
-
-        this.selectedBean = this.getBeanById(this.beanId);
-
-        this.loadPreviousBrew();
+        this.$router.push({ name: 'CreateBrew', query: { ...this.$route.query, brewId: this.brew.id } });
       }
+    }
+
+    async mounted() {
+      this.setAppBarTitle('Create Brew');
 
       if (this.$route.query.brewStep) {
         this.brewStepField = Number(this.$route.query.brewStep);
       }
+
+      if (this.$route.query.brewId) {
+        this.brew = await this.getBrewById(this.$route.query.brewId as string);
+        this.beanId = this.brew.beanId;
+      } else if (this.$route.query.beanId) {
+        this.beanId = this.$route.query.beanId as string;
+
+        this.brew = new Brew(this.beanId);
+      }
+
+      this.selectedBean = await this.getBeanById(this.beanId);
+      await this.loadPreviousBrew();
     }
 }
 </script>

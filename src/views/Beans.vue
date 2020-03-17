@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import store from '../store';
 
 export default Vue.extend({
@@ -44,12 +44,16 @@ export default Vue.extend({
       beans: 'beans',
     }),
   },
-  data: () => ({
-  }),
+  async created() {
+    await this.getBeans();
+  },
   methods: {
     goToBeanDetails(beanId: string) {
       this.$router.push({ name: 'Bean', params: { beanId } });
     },
+    ...mapActions({
+      getBeans: 'getBeans',
+    }),
   },
   mounted() {
     store.commit('SET_TITLE', 'Beans');

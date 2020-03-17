@@ -2,7 +2,6 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 import 'firebase/storage';
-import store from '@/store';
 
 const config = {
   apiKey: 'AIzaSyAmf5D6ea6FAUlWNGnfNXPqNkjOjGrwxQw',
@@ -25,31 +24,19 @@ const beansCollection = db.collection('beans');
 const brewsCollection = db.collection('brews');
 const usersCollection = db.collection('users');
 
-beansCollection.onSnapshot((beansRef) => {
-  const beans: any = {};
 
-  beansRef.forEach((doc) => {
-    const bean: any = doc.data();
-    bean.id = doc.id;
+// brewsCollection.onSnapshot((brewsRef) => {
+//   const brews: {[brewId: string]: Brew} = {};
 
-    beans[bean.id] = bean;
-  });
+//   brewsRef.forEach((doc) => {
+//     const brew = doc.data() as Brew;
+//     brew.id = doc.id;
 
-  store.dispatch('fetchBeans', beans);
-});
+//     brews[brew.id] = brew;
+//   });
 
-brewsCollection.onSnapshot((brewsRef) => {
-  const brews: any = {};
-
-  brewsRef.forEach((doc) => {
-    const brew: any = doc.data();
-    brew.id = doc.id;
-
-    brews[brew.id] = brew;
-  });
-
-  store.dispatch('fetchBrews', brews);
-});
+//   store.dispatch('fetchBrews', brews);
+// });
 
 export {
   auth,

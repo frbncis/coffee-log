@@ -95,7 +95,7 @@
 import Vue from 'vue';
 import Bean from '@/models/beans';
 import { beansCollection, storage } from '@/services/firebase';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import store from '@/store';
 
 export default Vue.extend({
@@ -141,18 +141,18 @@ export default Vue.extend({
       'Various',
     ],
   }),
-  created() {
+  async created() {
     if (this.$route.query.beanId) {
       const { beanId } = this.$route.query;
       store.commit('SET_TITLE', 'Edit Beans');
 
-      this.beanModel = this.getBeanById()(beanId);
+      this.beanModel = await this.getBeanById(beanId);
     } else {
       store.commit('SET_TITLE', 'Add Beans');
     }
   },
   methods: {
-    ...mapGetters({
+    ...mapActions({
       getBeanById: 'getBeanById',
     }),
     bagImageChanged(imageFile: File) {

@@ -35,20 +35,12 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import { Mutation, State } from 'vuex-class';
-import { mapState } from 'vuex';
 import Brew from '../models/brew';
 
-@Component({
-  computed: {
-    ...mapState({
-      // brews: 'brews',
-      // beans: 'beans',
-    }),
-  },
-})
+@Component
 export default class Brews extends Vue {
   get brewDetails() {
-    return Object.keys(this.brews).map((key, index) => ({
+    return Object.keys(this.brews).map((key) => ({
       ...this.brews[key],
       bean: this.beans[this.brews[key].beanId],
     }));

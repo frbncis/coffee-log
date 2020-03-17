@@ -4,6 +4,8 @@ import Improvement from '@/models/improvement';
 export default class Brew {
   id!: string;
 
+  completed = false;
+
   brewDateTime: number;
 
   beanId: string;

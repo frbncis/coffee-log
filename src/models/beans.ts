@@ -1,21 +1,21 @@
 export default class Bean {
-  id!: string;
+  id = '';
 
-  name!: string;
+  name = ''
 
-  roaster!: string;
+  roaster = ''
 
-  varietal!: string;
+  varietal = ''
 
-  process!: string;
+  process = ''
 
-  originCountry!: string;
+  originCountry = ''
 
-  originRegion!: string;
+  originRegion = ''
 
-  story!: string;
+  story = ''
 
-  tastingNotes!: string[];
+  tastingNotes: string[] = []
 
-  imageUrl!: string;
+  imageUrl = ''
 }

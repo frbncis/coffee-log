@@ -2,10 +2,19 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import Bean from '@/models/beans';
 import Brew from '@/models/brew';
+import { beansCollection, brewsCollection } from '@/services/firebase';
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+interface State {
+  title: string;
+  showBack: boolean;
+  beans: {[beanId: string]: Bean};
+  brews: {[brewId: string]: Brew};
+  user: { loggedIn: boolean; data: unknown };
+}
+
+export default new Vuex.Store<State>({
   state: {
     title: 'Coffee Log',
     showBack: false,
@@ -20,28 +29,6 @@ export default new Vuex.Store({
     user(state) {
       return state.user;
     },
-    getBeanById: (state) => (id: string) => (state.beans as {[beanId: string]: Bean })[id],
-    getMostRecentBrewByBeanId: (state) => (beanId: string) => {
-      const brews = state.brews as {[brewId: string]: Brew};
-
-      const brewsWithBeanId = Object.values(brews).filter((brew: Brew) => brew.beanId === beanId);
-
-      if (brewsWithBeanId.length === 0) {
-        return null;
-      }
-
-      const brewDates = brewsWithBeanId.map((brew) => brew.brewDateTime);
-
-      const mostRecentDate = Math.max.apply(
-        null,
-        brewDates,
-      );
-
-      const mostRecentBrewing = brewsWithBeanId
-        .filter((brew) => brew.brewDateTime === mostRecentDate)[0];
-
-      return mostRecentBrewing;
-    },
   },
   mutations: {
     SET_LOGGED_IN(state, value) {
@@ -50,8 +37,23 @@ export default new Vuex.Store({
     SET_USER(state, data) {
       state.user.data = data;
     },
-    SET_BEANS(state, beans) {
-      state.beans = beans;
+    ADD_BEANS(state, beans) {
+      state.beans = {
+        ...state.beans,
+        ...beans,
+      };
+    },
+    ADD_BREW(state, brew) {
+      state.brews = {
+        ...state.brews,
+        brew,
+      };
+    },
+    ADD_BEAN(state, bean) {
+      state.beans = {
+        ...state.beans,
+        [bean.id]: bean,
+      };
     },
     SET_BREWS(state, brews) {
       state.brews = brews;
@@ -76,14 +78,81 @@ export default new Vuex.Store({
         commit('SET_USER', null);
       }
     },
-    fetchBeans({ commit }, beans) {
-      commit('SET_BEANS', beans);
-    },
     setTitle({ commit }, title) {
       commit('SET_TITLE', title);
     },
     fetchBrews({ commit }, brews) {
       commit('SET_BREWS', brews);
+    },
+    async getBeans(context, lastVisible) {
+      const query = beansCollection;
+
+      if (lastVisible) {
+        query.startAfter(lastVisible);
+      }
+      const beanQueryResult = await query.limit(20).get();
+
+      const beans: {[beanId: string]: Bean} = {};
+
+      beanQueryResult.docs.forEach((beanDocument) => {
+        const bean = beanDocument.data() as Bean;
+        bean.id = beanDocument.id;
+
+        beans[bean.id] = bean;
+      });
+
+      return context.commit('ADD_BEANS', beans);
+    },
+    async getBrewById(context, brewId) {
+      let brew: Brew | null = null;
+
+      if (!context.state.brews[brewId]) {
+        const brewDocument = await brewsCollection.doc(brewId).get();
+
+        if (brewDocument.exists) {
+          const brewData = brewDocument.data() as Brew;
+
+          context.commit('ADD_BREW', brewData);
+
+          brew = brewData;
+        }
+      } else {
+        brew = context.state.brews[brewId];
+      }
+
+      return brew;
+    },
+    async getBeanById(context, beanId) {
+      let bean: Bean | null = null;
+
+      if (!context.state.beans[beanId]) {
+        const beanDocument = await beansCollection.doc(beanId).get();
+
+        if (beanDocument.exists) {
+          const beanData = beanDocument.data() as Bean;
+
+          context.commit('ADD_BEAN', beanData);
+
+          bean = beanData;
+        }
+      } else {
+        bean = context.state.beans[beanId];
+      }
+
+      return bean;
+    },
+    async getMostRecentBrewByBeanId(context, beanId) {
+      const recentBrewDocument = await brewsCollection
+        .where('beanId', '==', beanId)
+        .where('completed', '==', true)
+        .orderBy('brewDateTime', 'desc')
+        .limit(1)
+        .get();
+
+      // TODO: Cache this result.
+      return recentBrewDocument.size === 1
+        ? recentBrewDocument.docs[0].data() as Brew
+        : null;
     },
   },
   modules: {
