@@ -48,7 +48,8 @@
                         </v-icon>
                       </v-btn>
                     </template>
-                    <span>Load From Last Brewing</span>
+                    <span v-if="previousBrew">Load From Last Brewing</span>
+                    <span v-else>No Previous Brewings Found</span>
                   </v-tooltip>
                 </v-card-actions>
               </v-row>
@@ -331,19 +332,30 @@ export default class CreateBrew extends Vue {
     startTimer() {
       this.timerRunning = true;
       this.timerIncrementTask = setInterval(this.incrementTimer, this.timerTickMilliseconds);
+      this.$router.replace({ name: 'CreateBrew', query: { ...this.$route.query, timerStarted: Date.now().toString() } });
     }
 
     resetTimer() {
       this.stopTimer();
       this.brew.brewTimeMilliseconds = 0;
+
+      this.removeTimerStartedQueryParameter();
     }
 
     stopTimer() {
       this.timerRunning = false;
 
+      this.removeTimerStartedQueryParameter();
       if (this.timerIncrementTask) {
         clearInterval(this.timerIncrementTask);
       }
+    }
+
+    removeTimerStartedQueryParameter() {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { timerStarted, ...query } = this.$route.query;
+
+      this.$router.replace({ name: 'CreateBrew', query });
     }
 
     async nextBrewStep() {
@@ -416,6 +428,17 @@ export default class CreateBrew extends Vue {
         this.beanId = this.$route.query.beanId as string;
 
         this.brew = new Brew(this.beanId);
+      }
+
+
+      if (this.$route.query.timerStarted) {
+        const { timerStarted, brewStep } = this.$route.query;
+        const elapsed = Date.now() - Number(timerStarted);
+        this.brew.brewTimeMilliseconds = elapsed;
+
+        if (brewStep === '2') {
+          this.startTimer();
+        }
       }
 
       this.selectedBean = await this.getBeanById(this.beanId);
