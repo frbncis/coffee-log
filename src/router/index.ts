@@ -25,11 +25,6 @@ const routes = [
     component: () => import(/* webpackChunkName: "brews" */ '../views/Brews.vue'),
   },
   {
-    path: '/brews/:brewId',
-    name: 'Brew',
-    component: () => import(/* webpackChunkName: "brew" */ '../views/brews/brewDetail.vue'),
-  },
-  {
     path: '/brews/create',
     name: 'CreateBrew',
     component: () => import(/* webpackChunkName: "createBrew" */ '../views/brews/createBrew.vue'),
