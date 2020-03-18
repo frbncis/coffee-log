@@ -57,6 +57,7 @@ export default Vue.extend({
   },
   mounted() {
     store.commit('SET_TITLE', 'Beans');
+    store.commit('SET_BOTTOM_NAVIGATION', []);
   },
 });
 </script>

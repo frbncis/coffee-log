@@ -24,7 +24,10 @@
 
       <v-stepper-items>
         <v-stepper-content step="1">
-            <selected-bean-card :selectedBean="selectedBean" />
+            <selected-bean-card
+              title="Brewing"
+              :selectedBean="selectedBean"
+            />
 
             <v-card
               class="mx-auto mt-5"

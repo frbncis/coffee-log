@@ -24,20 +24,6 @@ const beansCollection = db.collection('beans');
 const brewsCollection = db.collection('brews');
 const usersCollection = db.collection('users');
 
-
-// brewsCollection.onSnapshot((brewsRef) => {
-//   const brews: {[brewId: string]: Brew} = {};
-
-//   brewsRef.forEach((doc) => {
-//     const brew = doc.data() as Brew;
-//     brew.id = doc.id;
-
-//     brews[brew.id] = brew;
-//   });
-
-//   store.dispatch('fetchBrews', brews);
-// });
-
 export {
   auth,
   db,

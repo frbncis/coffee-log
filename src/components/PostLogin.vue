@@ -15,7 +15,7 @@
         </v-list-item>
         <v-list-item link @click="() => this.$router.push({ name: 'Beans' })">
           <v-list-item-action>
-            <v-icon>mdi-free-breakfast</v-icon>
+            <v-icon>mdi-seed</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Beans</v-list-item-title>
@@ -74,18 +74,6 @@
       <v-toolbar-title>{{ title }}</v-toolbar-title>
     </v-app-bar>
 
-    <!-- <v-content>
-      <v-container
-        class="fill-height"
-        fluid
-      >
-        <v-row
-          align="center"
-          justify="center"
-        >
-        </v-row>
-      </v-container>
-    </v-content> -->
     <v-content>
       <router-view />
 
@@ -124,13 +112,19 @@
         </v-btn>
       </v-speed-dial>
     </v-content>
+
+    <bottom-navigator />
   </v-app>
 </template>
 
 <script>
 import { mapState } from 'vuex';
+import BottomNavigator from '@/components/BottomNavigator.vue';
 
 export default {
+  components: {
+    'bottom-navigator': BottomNavigator,
+  },
   computed: {
     ...mapState({
       title: 'title',
@@ -143,6 +137,7 @@ export default {
   data: () => ({
     drawer: null,
     fab: false,
+    bottomNav: 'recent',
   }),
   methods: {
     goHistoryBack() {

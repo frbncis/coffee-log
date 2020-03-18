@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import Bean from '@/models/beans';
 import Brew from '@/models/brew';
 import { beansCollection, brewsCollection } from '@/services/firebase';
+import BottomNavigatorButtonViewModel from '@/components/bottomNavigator/bottomNavigatorButtonViewModel';
 
 Vue.use(Vuex);
 
@@ -12,6 +13,7 @@ interface State {
   beans: {[beanId: string]: Bean};
   brews: {[brewId: string]: Brew};
   user: { loggedIn: boolean; data: unknown };
+  bottomNavigator: BottomNavigatorButtonViewModel[];
 }
 
 export default new Vuex.Store<State>({
@@ -24,6 +26,7 @@ export default new Vuex.Store<State>({
       loggedIn: false,
       data: null,
     },
+    bottomNavigator: [],
   },
   getters: {
     user(state) {
@@ -63,6 +66,9 @@ export default new Vuex.Store<State>({
     },
     SET_BACK_NAV_ICON(state, showBack) {
       state.showBack = showBack;
+    },
+    SET_BOTTOM_NAVIGATION(state, bottomNavigatorButtonViewModels) {
+      state.bottomNavigator = bottomNavigatorButtonViewModels;
     },
   },
   actions: {
@@ -121,6 +127,33 @@ export default new Vuex.Store<State>({
       }
 
       return brew;
+    },
+    async getBrews(context) {
+      brewsCollection.onSnapshot((brewsRef) => {
+        const brews: {[brewId: string]: Brew} = {};
+
+        brewsRef.forEach((doc) => {
+          const brew = doc.data() as Brew;
+          brew.id = doc.id;
+
+          brews[brew.id] = brew;
+        });
+
+        context.dispatch('fetchBrews', brews);
+      });
+    },
+    async getBrewsByBeanId(context, beanId) {
+      const brewsRef = await brewsCollection.where('beanId', '==', beanId).get();
+      const brews: {[brewId: string]: Brew} = {};
+
+      brewsRef.docs.forEach((doc) => {
+        const brew = doc.data() as Brew;
+        brew.id = doc.id;
+
+        brews[brew.id] = brew;
+      });
+
+      return brews;
     },
     async getBeanById(context, beanId) {
       let bean: Bean | null = null;
