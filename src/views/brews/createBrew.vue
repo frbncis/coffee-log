@@ -25,7 +25,6 @@
       <v-stepper-items>
         <v-stepper-content step="1">
             <selected-bean-card
-              title="Brewing"
               :selectedBean="selectedBean"
             />
 
@@ -61,26 +60,54 @@
                 <v-list-item-content>
                   <v-text-field
                     v-model="brew.brewMethod"
-                    placeholder="Brew Method"
+                    outlined
+                    label="Brew Method"
                   />
 
                   <v-text-field
                     v-model="brew.grindWeight"
+                    outlined
                     type="number"
-                    placeholder="Dose (g)"
-                  />
+                    label="Dose"
+                  >
+                    <template v-slot:append-outer v-if="shouldShowStrengthImprovement">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{on}">
+                          <v-icon v-on="on">
+                            mdi-alert
+                          </v-icon>
+                        </template>
+                        <span>{{ strengthImprovementMessage }}</span>
+                      </v-tooltip>
+                    </template>
+                  </v-text-field>
 
                   <v-text-field
                     v-model="brew.waterVolume"
+                    outlined
                     type="number"
-                    placeholder="Water Volume (mL)"
+                    label="Water Volume"
+                    suffix="mL"
                   />
 
                   <v-text-field
                     v-model="brew.grindSetting"
+                    outlined
                     type="number"
-                    placeholder="Grind Setting"
-                  />
+                    label="Grind Setting"
+                    suffix="click(s)"
+                  >
+                    <template v-slot:append-outer v-if="shouldShowExtractionImprovement">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{on}">
+                          <v-icon v-on="on">
+                            mdi-alert
+                          </v-icon>
+                        </template>
+                        <span>{{ extractionImprovementMessage }}</span>
+                      </v-tooltip>
+                    </template>
+                  </v-text-field>
                 </v-list-item-content>
               </v-list-item>
             </v-card>
@@ -248,6 +275,9 @@ import Brew from '@/models/brew';
 import SelectedBeanCard from '@/components/brews/selectedBeanCard.vue';
 import { Route } from 'vue-router';
 import { brewsCollection } from '@/services/firebase';
+import NoSleep from 'nosleep.js';
+import BottomNavigatorButtonViewModel from '../../components/bottomNavigator/bottomNavigatorButtonViewModel';
+import Improvement, { Correction } from '../../models/improvement';
 
 @Component({
   components: {
@@ -264,11 +294,15 @@ export default class CreateBrew extends Vue {
 
     previousBrew: Brew = new Brew('');
 
+    populatedSetupFromPreviousBrew = false;
+
     beanId!: string;
 
     brewStepField = 1;
 
     timerRunning = false;
+
+    wakeLock = new NoSleep();
 
     timerIncrementTask!: number
 
@@ -336,6 +370,8 @@ export default class CreateBrew extends Vue {
       this.timerRunning = true;
       this.timerIncrementTask = setInterval(this.incrementTimer, this.timerTickMilliseconds);
       this.$router.replace({ name: 'CreateBrew', query: { ...this.$route.query, timerStarted: Date.now().toString() } });
+
+      this.wakeLock.enable();
     }
 
     resetTimer() {
@@ -352,6 +388,8 @@ export default class CreateBrew extends Vue {
       if (this.timerIncrementTask) {
         clearInterval(this.timerIncrementTask);
       }
+
+      this.wakeLock.disable();
     }
 
     removeTimerStartedQueryParameter() {
@@ -374,6 +412,8 @@ export default class CreateBrew extends Vue {
 
     populateSetupFromPreviousBrew() {
       if (this.previousBrew) {
+        this.populatedSetupFromPreviousBrew = true;
+
         this.brew = {
           ...this.brew,
           brewMethod: this.previousBrew.brewMethod,
@@ -388,6 +428,94 @@ export default class CreateBrew extends Vue {
       this.previousBrew = await this.getMostRecentBrewByBeanId(this.beanId);
     }
 
+    get getBrewImprovements() {
+      const improvements: {[parameter: string]: Correction} = {};
+      this.previousBrew.improvements.forEach((improvement: Improvement) => {
+        improvements[improvement.parameter] = improvement.correction as Correction;
+      });
+
+      console.log(improvements);
+      return improvements;
+    }
+
+    get strengthImprovement() {
+      const correction = this.getBrewImprovements.Strength;
+      if (correction) {
+        return correction;
+      }
+      return null;
+    }
+
+    get extractionImprovement() {
+      const correction = this.getBrewImprovements.Extraction;
+      if (correction) {
+        return correction;
+      }
+      return null;
+    }
+
+    get shouldShowExtractionImprovement() {
+      if (this.populatedSetupFromPreviousBrew
+        && this.extractionImprovement
+        && this.extractionImprovement !== Correction.Enough) {
+        return this.previousBrew.grindSetting === this.brew.grindSetting;
+      }
+
+      return false;
+    }
+
+    get extractionImprovementMessage() {
+      let message = '';
+
+      switch (this.extractionImprovement) {
+        case Correction.Less: {
+          message = 'Decrease your grind setting to correct your brew';
+          break;
+        }
+        case Correction.More: {
+          message = 'Increase your grind setting to correct your brew';
+          break;
+        }
+        default: {
+          message = '';
+          break;
+        }
+      }
+
+      return message;
+    }
+
+    get shouldShowStrengthImprovement() {
+      if (this.populatedSetupFromPreviousBrew
+        && this.strengthImprovement
+        && this.strengthImprovement !== Correction.Enough) {
+        return this.previousBrew.grindWeight === this.brew.grindWeight;
+      }
+
+      return false;
+    }
+
+    get strengthImprovementMessage() {
+      let message = '';
+
+      switch (this.strengthImprovement) {
+        case Correction.Less: {
+          message = 'Decrease your dose to correct your brew';
+          break;
+        }
+        case Correction.More: {
+          message = 'Increase your dose to correct your brew';
+          break;
+        }
+        default: {
+          message = '';
+          break;
+        }
+      }
+
+      return message;
+    }
+
     @State
     beans!: {[beanId: string]: Bean};
 
@@ -396,6 +524,9 @@ export default class CreateBrew extends Vue {
 
     @Action
     getBrewById!: (brewId: string) => Promise<Brew>;
+
+    @Mutation('SET_BOTTOM_NAVIGATION')
+    setBottomNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
 
     async completeBrew() {
       this.brew.completed = true;
@@ -419,6 +550,7 @@ export default class CreateBrew extends Vue {
 
     async mounted() {
       this.setAppBarTitle('Create Brew');
+      this.setBottomNavigation([]);
 
       if (this.$route.query.brewStep) {
         this.brewStepField = Number(this.$route.query.brewStep);

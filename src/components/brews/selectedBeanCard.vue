@@ -3,8 +3,6 @@
     class="mx-auto mt-5 "
     outlined
   >
-    <v-card-title>{{ title }}</v-card-title>
-
     <v-list-item three-line>
       <v-list-item-avatar
         tile
@@ -30,7 +28,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 
 @Component({
-  props: ['selectedBean', 'title'],
+  props: ['selectedBean'],
 })
 export default class SelectedBeanCard extends Vue {
 }

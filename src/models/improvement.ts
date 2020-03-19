@@ -1,7 +1,7 @@
-enum Correction {
-  Less = -1,
-  Enough = 0,
-  More = 1,
+export enum Correction {
+  Less = '-1',
+  Enough = '0',
+  More = '1',
 }
 
 export default class Improvement {
