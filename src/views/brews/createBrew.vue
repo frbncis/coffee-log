@@ -434,7 +434,6 @@ export default class CreateBrew extends Vue {
         improvements[improvement.parameter] = improvement.correction as Correction;
       });
 
-      console.log(improvements);
       return improvements;
     }
 
