@@ -143,7 +143,11 @@ export default new Vuex.Store<State>({
       });
     },
     async getBrewsByBeanId(context, beanId) {
-      const brewsRef = await brewsCollection.where('beanId', '==', beanId).get();
+      const brewsRef = await brewsCollection.where('beanId', '==', beanId)
+        .where('beanId', '==', beanId)
+        .orderBy('brewDateTime', 'desc')
+        .get();
+
       const brews: {[brewId: string]: Brew} = {};
 
       brewsRef.docs.forEach((doc) => {

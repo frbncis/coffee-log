@@ -43,6 +43,7 @@
                         icon
                         class="mx-auth"
                         v-on="on"
+                        v-if="!brew.completed"
                         @click.prevent="populateSetupFromPreviousBrew"
                       >
                         <v-icon>
@@ -115,10 +116,51 @@
 
         <v-stepper-content step="2" class="text-center">
           <v-card>
-            <h1>{{ timeElapsedFormatted }}</h1>
+            <h1 class="display-3">{{ timeElapsedFormatted }}
 
+              <v-btn
+                icon
+                :disabled="timerRunning"
+                @click.stop="editTimeDialog = true"
+              >
+                <v-icon>
+                  mdi-pencil
+                </v-icon>
+
+                <v-dialog
+                  v-model="editTimeDialog"
+                  max-width="290"
+                >
+                  <v-card>
+                    <v-card-title class="headline">Edit Brew Time</v-card-title>
+
+                    <v-card-text>
+                      <v-text-field
+                        type="number"
+                        outlined
+                        suffix="seconds"
+                        @change="manuallySetBrewTime"
+                      />
+                    </v-card-text>
+
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="editTimeDialog = false"
+                      >
+                        Set
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-btn>
+            </h1>
             <v-card-subtitle v-if="previousBrew">
-              Previous Brew Time: {{ formatTime(previousBrew.brewTimeMilliseconds) }}
+              Previous Brew Time: {{ formatBrewTime(previousBrew.brewTimeMilliseconds) }}
             </v-card-subtitle>
 
             <v-card-actions>
@@ -276,6 +318,7 @@ import SelectedBeanCard from '@/components/brews/selectedBeanCard.vue';
 import { Route } from 'vue-router';
 import { brewsCollection } from '@/services/firebase';
 import NoSleep from 'nosleep.js';
+import formatTime from '@/utils/timeUtils';
 import BottomNavigatorButtonViewModel from '../../components/bottomNavigator/bottomNavigatorButtonViewModel';
 import Improvement, { Correction } from '../../models/improvement';
 
@@ -308,6 +351,8 @@ export default class CreateBrew extends Vue {
 
     timerTickMilliseconds = 100;
 
+    editTimeDialog = false;
+
     criterionIsExpandedState = {
     }
 
@@ -336,20 +381,16 @@ export default class CreateBrew extends Vue {
     }
 
     get timeElapsedFormatted() {
-      return this.formatTime(this.brew.brewTimeMilliseconds);
-    }
-
-    formatTime(milliseconds: number) {
-      const millis = (milliseconds % 1000) / 10;
-      const second = Math.floor((milliseconds / 1000) % 60);
-      const minute = Math.floor((milliseconds / (1000 * 60)) % 60);
-
-      return `${this.formatTimerFragment(minute, 2)}:${this.formatTimerFragment(second, 2)}:${this.formatTimerFragment(millis, 2)}`;
+      return formatTime(this.brew.brewTimeMilliseconds);
     }
 
     // eslint-disable-next-line class-methods-use-this
-    formatTimerFragment(fragment: number, minimumIntegerDigits: number) {
-      return fragment.toLocaleString('en-US', { minimumIntegerDigits, useGrouping: false });
+    formatBrewTime(timestamp: number) {
+      return formatTime(timestamp);
+    }
+
+    manuallySetBrewTime(brewTimeSeconds: number) {
+      this.brew.brewTimeMilliseconds = brewTimeSeconds * 1000;
     }
 
     @Action
@@ -548,7 +589,6 @@ export default class CreateBrew extends Vue {
     }
 
     async mounted() {
-      this.setAppBarTitle('Create Brew');
       this.setBottomNavigation([]);
 
       if (this.$route.query.brewStep) {
@@ -573,6 +613,12 @@ export default class CreateBrew extends Vue {
         if (brewStep === '2') {
           this.startTimer();
         }
+      }
+
+      if (this.brew.completed) {
+        this.setAppBarTitle('Edit Brew');
+      } else {
+        this.setAppBarTitle('Create Brew');
       }
 
       this.selectedBean = await this.getBeanById(this.beanId);

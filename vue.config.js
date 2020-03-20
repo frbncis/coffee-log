@@ -9,6 +9,9 @@ module.exports = {
     workboxOptions: {
       skipWaiting: true,
       clientsClaim: true,
+      exclude: [
+        'CNAME',
+      ],
     },
   },
 };

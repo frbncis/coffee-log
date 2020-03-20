@@ -111,6 +111,7 @@
           v-for="brew in brews"
           :key="brew.id"
           class="mx-5 mt-5 mb-5 pb-5"
+          @click="() => goToCreateBrew(bean.id, brew.id)"
         >
           <v-list-item four-line>
             <v-list-item-content>
@@ -142,6 +143,14 @@
               {{ brew.grindSetting }} clicks
             </v-list-item-subtitle>
           </v-list-item>
+          <v-list-item>
+          <v-list-item-title>
+            Brew Time
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ formatBrewTime(brew.brewTimeMilliseconds) }}
+          </v-list-item-subtitle>
+        </v-list-item>
         </v-card>
       </v-tab-item>
     </v-tabs-items>
@@ -151,6 +160,7 @@
 import Vue from 'vue';
 import { mapActions, mapMutations } from 'vuex';
 import Bean from '@/models/beans';
+import formatTime from '@/utils/timeUtils';
 import store from '../store';
 import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
 
@@ -161,8 +171,8 @@ export default Vue.extend({
       getBeanById: 'getBeanById',
       getBrewsByBeanId: 'getBrewsByBeanId',
     }),
-    goToCreateBrew(beanId: string) {
-      this.$router.push({ name: 'CreateBrew', query: { beanId } });
+    goToCreateBrew(beanId: string, brewId: string) {
+      this.$router.push({ name: 'CreateBrew', query: { beanId, brewId } });
     },
     goToEditBean(beanId: string) {
       this.$router.push({ name: 'CreateBeans', query: { beanId } });
@@ -180,6 +190,9 @@ export default Vue.extend({
       const b = new Date(timestamp);
 
       return `${b.toDateString()} @ ${b.toLocaleTimeString()}`;
+    },
+    formatBrewTime(timestamp: number) {
+      return formatTime(timestamp);
     },
   },
   computed: {

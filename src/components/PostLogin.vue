@@ -21,39 +21,20 @@
             <v-list-item-title>Beans</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link @click="() => this.$router.push({ name: 'Brews' })">
-          <v-list-item-action>
-            <v-icon>mdi-coffee</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Brews</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item link>
-          <v-list-item-action>
-            <v-icon>mdi-contact-mail</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Contact</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item link @click="() => this.$router.push({ name: 'About' })">
-          <v-list-item-action>
-            <v-icon>mdi-contact-mail</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>About</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item link @click="() => this.$router.push({ name: 'Login' })">
-          <v-list-item-action>
-            <v-icon>mdi-contact-mail</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Logout</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
       </v-list>
+
+      <template v-slot:append>
+        <v-list dense>
+          <v-list-item link @click="() => this.$router.push({ name: 'About' })">
+            <v-list-item-action>
+              <v-icon>mdi-cog</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Settings</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </template>
     </v-navigation-drawer>
 
     <v-app-bar
@@ -77,7 +58,7 @@
     <v-content>
       <router-view />
 
-      <v-speed-dial
+      <!-- <v-speed-dial
         v-model="fab"
         bottom
         right
@@ -110,7 +91,7 @@
         >
           <v-icon>mdi-plus</v-icon>
         </v-btn>
-      </v-speed-dial>
+      </v-speed-dial> -->
     </v-content>
 
     <bottom-navigator />
