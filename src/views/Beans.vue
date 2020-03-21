@@ -3,7 +3,7 @@
     <v-skeleton-loader
       type="bean@4"
       tile
-      :types="{ 'bean': 'article'}"
+      :types="{ 'bean': 'article' }"
       :loading="loading"
     >
       <!-- Empty div to occupy default slot so skeleton
@@ -43,6 +43,7 @@
           class="mt-5"
           @click="() => this.$router.push({ name: 'CreateBeans' })"
         >
+          <v-icon disabled left>mdi-plus</v-icon>
           Add Bean
         </v-btn>
       </v-row>

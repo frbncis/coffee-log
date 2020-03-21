@@ -8,7 +8,7 @@ const formatTime = (milliseconds: number) => {
   const second = Math.floor((milliseconds / 1000) % 60);
   const minute = Math.floor((milliseconds / (1000 * 60)) % 60);
 
-  return `${formatTimerFragment(minute, 2)}:${formatTimerFragment(second, 2)}:${formatTimerFragment(millis, 2)}`;
+  return `${formatTimerFragment(minute, 2)}:${formatTimerFragment(second, 2)}.${formatTimerFragment(millis, 2)}`;
 };
 
 export default formatTime;

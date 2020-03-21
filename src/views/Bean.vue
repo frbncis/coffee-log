@@ -6,6 +6,7 @@
       >
         <v-card
           class="mx-5 mt-5 mb-5 pb-5"
+          outlined
         >
         <v-skeleton-loader
           :loading="loading"
@@ -69,7 +70,6 @@
         <v-skeleton-loader
           :loading="loading"
           type="paragraph"
-          class="mx-4"
         >
           <v-card-title>Origin</v-card-title>
 
@@ -87,6 +87,7 @@
             <v-list-item-title>Process</v-list-item-title>
             <v-list-item-subtitle>{{ bean.process }}</v-list-item-subtitle>
           </v-list-item>
+
         </v-skeleton-loader>
 
         <v-divider class="mx-4"></v-divider>
@@ -109,6 +110,8 @@
       >
         <v-card
           v-for="brew in brews"
+          tile
+          outlined
           :key="brew.id"
           class="mx-3 mt-3"
           @click="() => goToCreateBrew(bean.id, brew.id)"
@@ -117,46 +120,74 @@
             <v-list-item-title>
             {{ formatDateTime(brew.brewDateTime) }}
             </v-list-item-title>
+
+            <v-spacer />
+
+            <v-subheader>
+              {{ brew.tasting.tastiness.quantity }}
+
+              <v-icon disabled>
+                mdi-star
+              </v-icon>
+            </v-subheader>
           </v-list-item>
 
           <v-divider class="mx-4" />
 
           <v-list-item class="text-center">
-            <v-list-item-content>
-              <v-list-item-title>
-                Dose
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ brew.grindWeight }} g
-              </v-list-item-subtitle>
-            </v-list-item-content>
+            <v-icon
+              disabled
+              size="16"
+            >
+              mdi-scale
+            </v-icon>
+            <v-subheader
+              class="brew-setting-subheader"
+            >
+              {{ brew.grindWeight }} g
+            </v-subheader>
 
-            <v-list-item-content>
-                <v-list-item-title>
-                  Water
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ brew.waterVolume }} mL
-                </v-list-item-subtitle>
-            </v-list-item-content>
+            <v-spacer />
 
-            <v-list-item-content>
-              <v-list-item-title>
-                Grind
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ brew.grindSetting }} clicks
-              </v-list-item-subtitle>
-            </v-list-item-content>
+            <v-icon
+              disabled
+              size="16"
+            >
+              mdi-water
+            </v-icon>
+            <v-subheader
+              class="brew-setting-subheader"
+            >
+              {{ brew.waterVolume }} mL
+            </v-subheader>
 
-            <v-list-item-content>
-              <v-list-item-title>
-                Time
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ formatBrewTime(brew.brewTimeMilliseconds) }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
+            <v-spacer />
+
+            <v-icon
+              disabled
+              size="16"
+            >
+              mdi-grain
+            </v-icon>
+            <v-subheader
+              class="brew-setting-subheader"
+            >
+              {{ brew.grindSetting }} clicks
+            </v-subheader>
+
+            <v-spacer />
+
+            <v-icon
+              disabled
+              size="16"
+            >
+              mdi-clock
+            </v-icon>
+            <v-subheader
+              class="brew-setting-subheader"
+            >
+              {{ formatBrewTime(brew.brewTimeMilliseconds) }}
+            </v-subheader>
           </v-list-item>
         </v-card>
       </v-tab-item>
@@ -189,9 +220,19 @@ export default Vue.extend({
     }),
     goToBeanTab() {
       this.tab = 'bean';
+      this.$router.replace({
+        name: 'Bean',
+        params: this.$route.params,
+        query: { ...this.$route.query, tab: 'bean' },
+      });
     },
     goToBrewsTab() {
       this.tab = 'brews';
+      this.$router.replace({
+        name: 'Bean',
+        params: this.$route.params,
+        query: { ...this.$route.query, tab: 'brews' },
+      });
     },
     formatDateTime(timestamp: number) {
       const b = new Date(timestamp);
@@ -215,8 +256,12 @@ export default Vue.extend({
   async mounted() {
     store.commit('SET_TITLE', 'Bean Details');
 
-    const { beanId } = this.$route.params;
+    const { beanId, tab } = this.$route.params;
     const result = await this.getBeanById(beanId);
+
+    if (tab) {
+      this.tab = tab;
+    }
 
     this.setBottomNavigation([
       new BottomNavigatorButtonViewModel(
@@ -242,3 +287,9 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style scoped>
+.brew-setting-subheader {
+  padding-left: 0.5em;
+}
+</style>

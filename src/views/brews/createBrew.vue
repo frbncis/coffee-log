@@ -121,7 +121,7 @@
               <v-btn
                 icon
                 :disabled="timerRunning"
-                @click.stop="editTimeDialog = true"
+                @click.stop="showEditTimeDialog"
               >
                 <v-icon>
                   mdi-pencil
@@ -139,7 +139,7 @@
                         type="number"
                         outlined
                         suffix="seconds"
-                        @change="manuallySetBrewTime"
+                        v-model="editTimeBrewTimeSeconds"
                       />
                     </v-card-text>
 
@@ -150,9 +150,17 @@
                       <v-btn
                         color="green darken-1"
                         text
-                        @click="editTimeDialog = false"
+                        @click="commitEditTimeDialog"
                       >
                         Set
+                      </v-btn>
+
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dismissEditTimeDialog"
+                      >
+                        Cancel
                       </v-btn>
                     </v-card-actions>
                   </v-card>
@@ -353,6 +361,8 @@ export default class CreateBrew extends Vue {
 
     editTimeDialog = false;
 
+    editTimeBrewTimeSeconds = 0;
+
     criterionIsExpandedState = {
     }
 
@@ -389,8 +399,19 @@ export default class CreateBrew extends Vue {
       return formatTime(timestamp);
     }
 
-    manuallySetBrewTime(brewTimeSeconds: number) {
-      this.brew.brewTimeMilliseconds = brewTimeSeconds * 1000;
+    showEditTimeDialog() {
+      this.editTimeBrewTimeSeconds = this.brew.brewTimeMilliseconds / 1000;
+      this.editTimeDialog = true;
+    }
+
+    dismissEditTimeDialog() {
+      this.editTimeDialog = false;
+    }
+
+    commitEditTimeDialog() {
+      this.brew.brewTimeMilliseconds = this.editTimeBrewTimeSeconds * 1000;
+
+      this.dismissEditTimeDialog();
     }
 
     @Action
