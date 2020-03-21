@@ -39,7 +39,7 @@
         <v-btn
           block
           outlined
-          flat
+          text
           class="mt-5"
           @click="() => this.$router.push({ name: 'CreateBeans' })"
         >
