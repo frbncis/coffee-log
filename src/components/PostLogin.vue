@@ -93,7 +93,18 @@
         </v-btn>
       </v-speed-dial> -->
     </v-content>
-
+    <v-snackbar
+      v-model="appUpdated"
+    >
+      An update is available, refresh to update.
+      <v-btn
+        color="pink"
+        text
+        @click="refreshWindow"
+      >
+        Refresh
+      </v-btn>
+    </v-snackbar>
     <bottom-navigator />
   </v-app>
 </template>
@@ -110,6 +121,7 @@ export default {
     ...mapState({
       title: 'title',
       showBack: 'showBack',
+      appUpdated: 'appUpdated',
     }),
   },
   props: {
@@ -119,6 +131,7 @@ export default {
     drawer: null,
     fab: false,
     bottomNav: 'recent',
+    snackbar: true,
   }),
   methods: {
     goHistoryBack() {
@@ -126,6 +139,9 @@ export default {
     },
     goToSettings() {
       this.$router.push({ name: 'About' });
+    },
+    refreshWindow() {
+      window.location.reload();
     },
   },
 };
