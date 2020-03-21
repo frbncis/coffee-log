@@ -25,7 +25,7 @@
 
       <template v-slot:append>
         <v-list dense>
-          <v-list-item link @click="() => this.$router.push({ name: 'About' })">
+          <v-list-item link @click.stop="goToSettings">
             <v-list-item-action>
               <v-icon>mdi-cog</v-icon>
             </v-list-item-action>
@@ -123,6 +123,9 @@ export default {
   methods: {
     goHistoryBack() {
       this.$router.go(-1);
+    },
+    goToSettings() {
+      this.$router.push({ name: 'About' });
     },
   },
 };
