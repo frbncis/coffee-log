@@ -32,6 +32,9 @@ export default new Vuex.Store<State>({
     user(state) {
       return state.user;
     },
+    beansLoaded(state) {
+      return state.beans === {};
+    },
   },
   mutations: {
     SET_LOGGED_IN(state, value) {

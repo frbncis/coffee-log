@@ -26,10 +26,12 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
+import Bean from '../../models/beans';
 
-@Component({
-  props: ['selectedBean'],
-})
+@Component
 export default class SelectedBeanCard extends Vue {
+  @Prop()
+  selectedBean!: Bean;
 }
 </script>

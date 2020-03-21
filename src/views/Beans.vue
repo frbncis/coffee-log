@@ -1,40 +1,58 @@
 <template>
-  <v-container fluid>
-    <v-row v-for="bean in beans" :key="bean.id" dense>
-      <v-card
-        cols="12"
-        class="mb-3"
-        outlined
-        width="100%"
-        @click="() => goToBeanDetails(bean.id)"
-      >
-        <v-list-item four-line>
-          <v-list-item-avatar
-            tile
-            size="180"
-            color="grey"
+  <v-container>
+    <v-skeleton-loader
+      type="bean@4"
+      tile
+      :types="{ 'bean': 'article'}"
+      :loading="loading"
+    >
+      <!-- Empty div to occupy default slot so skeleton
+        will load while v-for renders. -->
+      <div />
+      <div v-for="bean in beans" :key="bean.id">
+        <v-row dense>
+          <v-list-item
+            four-line
+            @click="() => goToBeanDetails(bean.id)"
           >
-            <v-img
-              :src="bean.imageUrl"
-            />
-          </v-list-item-avatar>
+            <v-list-item-avatar
+              tile
+              size="84"
+            >
+              <v-img
+                :src="bean.imageUrl"
+              />
+            </v-list-item-avatar>
 
-          <v-list-item-content>
-            <div class="overline mb-4">{{ bean.roaster }}</div>
-            <v-list-item-title class="headline mb-1">{{ bean.name }}</v-list-item-title>
-            <v-list-item-subtitle>
-              {{ bean.originCountry }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
-    </v-row>
+            <v-list-item-content>
+              <div class="overline">{{ bean.roaster }}</div>
+              <v-list-item-title>{{ bean.name }}</v-list-item-title>
+              <v-list-item-subtitle>
+                {{ bean.originCountry }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-row>
+        <v-divider />
+      </div>
+      <v-row dense>
+        <v-btn
+          block
+          outlined
+          flat
+          class="mt-5"
+          @click="() => this.$router.push({ name: 'CreateBeans' })"
+        >
+          Add Bean
+        </v-btn>
+      </v-row>
+    </v-skeleton-loader>
   </v-container>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapActions, mapGetters } from 'vuex';
 import store from '../store';
 
 export default Vue.extend({
@@ -43,6 +61,9 @@ export default Vue.extend({
     ...mapState({
       beans: 'beans',
     }),
+    loading() {
+      return Object.entries(this.beans).length === 0;
+    },
   },
   async created() {
     await this.getBeans();

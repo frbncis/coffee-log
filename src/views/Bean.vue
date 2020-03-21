@@ -110,47 +110,54 @@
         <v-card
           v-for="brew in brews"
           :key="brew.id"
-          class="mx-5 mt-5 mb-5 pb-5"
+          class="mx-3 mt-3"
           @click="() => goToCreateBrew(bean.id, brew.id)"
         >
-          <v-list-item four-line>
-            <v-list-item-content>
+          <v-list-item>
+            <v-list-item-title>
             {{ formatDateTime(brew.brewDateTime) }}
-            </v-list-item-content>
+            </v-list-item-title>
           </v-list-item>
 
-          <v-list-item>
-            <v-list-item-title>
-              Dose
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ brew.grindWeight }} g
-            </v-list-item-subtitle>
+          <v-divider class="mx-4" />
+
+          <v-list-item class="text-center">
+            <v-list-item-content>
+              <v-list-item-title>
+                Dose
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ brew.grindWeight }} g
+              </v-list-item-subtitle>
+            </v-list-item-content>
+
+            <v-list-item-content>
+                <v-list-item-title>
+                  Water
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ brew.waterVolume }} mL
+                </v-list-item-subtitle>
+            </v-list-item-content>
+
+            <v-list-item-content>
+              <v-list-item-title>
+                Grind
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ brew.grindSetting }} clicks
+              </v-list-item-subtitle>
+            </v-list-item-content>
+
+            <v-list-item-content>
+              <v-list-item-title>
+                Time
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ formatBrewTime(brew.brewTimeMilliseconds) }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
           </v-list-item>
-          <v-list-item>
-            <v-list-item-title>
-              Water Volume
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ brew.waterVolume }} mL
-            </v-list-item-subtitle>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-title>
-              Grind
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ brew.grindSetting }} clicks
-            </v-list-item-subtitle>
-          </v-list-item>
-          <v-list-item>
-          <v-list-item-title>
-            Brew Time
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            {{ formatBrewTime(brew.brewTimeMilliseconds) }}
-          </v-list-item-subtitle>
-        </v-list-item>
         </v-card>
       </v-tab-item>
     </v-tabs-items>

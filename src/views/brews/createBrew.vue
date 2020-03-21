@@ -316,7 +316,7 @@ import Bean from '@/models/beans';
 import Brew from '@/models/brew';
 import SelectedBeanCard from '@/components/brews/selectedBeanCard.vue';
 import { Route } from 'vue-router';
-import { brewsCollection } from '@/services/firebase';
+import { brewsCollection, beansCollection } from '@/services/firebase';
 import NoSleep from 'nosleep.js';
 import formatTime from '@/utils/timeUtils';
 import BottomNavigatorButtonViewModel from '../../components/bottomNavigator/bottomNavigatorButtonViewModel';
@@ -581,6 +581,8 @@ export default class CreateBrew extends Vue {
         await brewsCollection.doc(this.brew.id).update(JSON.parse(JSON.stringify(this.brew)));
       } else {
         const document = await brewsCollection.add(JSON.parse(JSON.stringify(this.brew)));
+
+        await beansCollection.doc(this.selectedBean.id).collection('brews').add({ id: this.selectedBean.id });
 
         this.brew.id = document.id;
 
