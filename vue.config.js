@@ -4,6 +4,7 @@ const { gitDescribeSync } = require('git-describe');
 process.env.VUE_APP_GIT = gitDescribeSync().hash;
 
 module.exports = {
+  productionSourceMap: false,
   pwa: {
     name: 'Coffee Log',
     workboxOptions: {
