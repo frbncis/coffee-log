@@ -60,7 +60,7 @@
 
         <v-file-input
           id="bag-image-upload"
-          v-if="beanModel.imageUrl == null"
+          v-if="beanModel.imageUrl == ''"
           label="Bag"
           outlined
           prepend-icon="mdi-camera"
