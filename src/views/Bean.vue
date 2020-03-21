@@ -240,7 +240,7 @@ export default Vue.extend({
       return `${b.toDateString()} @ ${b.toLocaleTimeString()}`;
     },
     formatBrewTime(timestamp: number) {
-      return formatTime(timestamp);
+      return formatTime(timestamp, false);
     },
   },
   computed: {
