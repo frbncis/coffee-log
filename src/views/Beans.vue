@@ -52,33 +52,40 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState, mapActions, mapGetters } from 'vuex';
-import store from '../store';
+import { Component } from 'vue-property-decorator';
+import { Action, State, Mutation } from 'vuex-class';
+import Bean from '../models/beans';
+import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
 
-export default Vue.extend({
-  name: 'Beans',
-  computed: {
-    ...mapState({
-      beans: 'beans',
-    }),
-    loading() {
-      return Object.entries(this.beans).length === 0;
-    },
-  },
+@Component
+export default class Beans extends Vue {
+  @State
+  beans!: {[beanId: string]: Bean}
+
+  @Action
+  getBeans!: () => Promise<void>
+
+  @Mutation('SET_TITLE')
+  setTitle!: (appBarTitle: string) => void;
+
+  @Mutation('SET_BOTTOM_NAVIGATION')
+  setBottomNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
+
+  mounted() {
+    this.setTitle('Beans');
+    this.setBottomNavigation([]);
+  }
+
   async created() {
     await this.getBeans();
-  },
-  methods: {
-    goToBeanDetails(beanId: string) {
-      this.$router.push({ name: 'Bean', params: { beanId } });
-    },
-    ...mapActions({
-      getBeans: 'getBeans',
-    }),
-  },
-  mounted() {
-    store.commit('SET_TITLE', 'Beans');
-    store.commit('SET_BOTTOM_NAVIGATION', []);
-  },
-});
+  }
+
+  get loading() {
+    return Object.entries(this.beans).length === 0;
+  }
+
+  goToBeanDetails(beanId: string) {
+    this.$router.push({ name: 'Bean', params: { beanId } });
+  }
+}
 </script>
