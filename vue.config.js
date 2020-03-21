@@ -11,6 +11,7 @@ module.exports = {
       clientsClaim: true,
       exclude: [
         'CNAME',
+        '404.html',
       ],
     },
   },
