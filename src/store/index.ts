@@ -7,13 +7,14 @@ import BottomNavigatorButtonViewModel from '@/components/bottomNavigator/bottomN
 
 Vue.use(Vuex);
 
-interface State {
+export interface State {
   title: string;
   showBack: boolean;
   beans: {[beanId: string]: Bean};
   brews: {[brewId: string]: Brew};
   user: { loggedIn: boolean; data: unknown };
   bottomNavigator: BottomNavigatorButtonViewModel[];
+  appUpdated: boolean;
 }
 
 export default new Vuex.Store<State>({
@@ -27,6 +28,7 @@ export default new Vuex.Store<State>({
       data: null,
     },
     bottomNavigator: [],
+    appUpdated: false,
   },
   getters: {
     user(state) {
@@ -73,6 +75,9 @@ export default new Vuex.Store<State>({
     SET_BOTTOM_NAVIGATION(state, bottomNavigatorButtonViewModels) {
       state.bottomNavigator = bottomNavigatorButtonViewModels;
     },
+    NOTIFY_APPLICATION_UPDATED(state, isUpdated) {
+      state.appUpdated = isUpdated;
+    },
   },
   actions: {
     fetchUser({ commit }, user) {
@@ -93,7 +98,7 @@ export default new Vuex.Store<State>({
     fetchBrews({ commit }, brews) {
       commit('SET_BREWS', brews);
     },
-    async getBeans(context, lastVisible) {
+    async getBeans(context, lastVisible = null) {
       const query = beansCollection;
 
       if (lastVisible) {
