@@ -530,11 +530,11 @@ export default class CreateBrew extends Vue {
 
       switch (this.extractionImprovement) {
         case Correction.Less: {
-          message = 'Decrease your grind setting to correct your brew';
+          message = 'Increase your grind setting to correct your brew';
           break;
         }
         case Correction.More: {
-          message = 'Increase your grind setting to correct your brew';
+          message = 'Decrease your grind setting to correct your brew';
           break;
         }
         default: {
