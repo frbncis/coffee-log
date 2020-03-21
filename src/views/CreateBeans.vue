@@ -95,7 +95,7 @@
 import Vue from 'vue';
 import Bean from '@/models/beans';
 import { beansCollection, storage } from '@/services/firebase';
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters, mapActions, mapMutations } from 'vuex';
 import store from '@/store';
 
 export default Vue.extend({
@@ -142,6 +142,8 @@ export default Vue.extend({
     ],
   }),
   async created() {
+    this.setBottomNavigation([]);
+
     if (this.$route.query.beanId) {
       const { beanId } = this.$route.query;
       store.commit('SET_TITLE', 'Edit Beans');
@@ -152,6 +154,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    ...mapMutations({
+      setBottomNavigation: 'SET_BOTTOM_NAVIGATION',
+    }),
     ...mapActions({
       getBeanById: 'getBeanById',
     }),
