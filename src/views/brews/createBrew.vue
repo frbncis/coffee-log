@@ -119,7 +119,7 @@
                     min="10"
                     max="20"
                     inverse-label
-                    :label="brewRatio"
+                    :label="String(brewRatio)"
                     @change="recalculateDoseFromBrewRatio"
                   >
                     <template v-slot:prepend>
@@ -468,13 +468,24 @@ export default class CreateBrew extends Vue {
     }
 
     incrementTimer() {
+      // Ensure there isn't drift between the timestamp query parameter
+      // and the variable.
+      const { timestamp } = this.$route.query as { [query: string]: string };
+
+      if (Math.abs(this.brew.brewTimeMilliseconds - Number(timestamp)) > 2000) {
+        this.brew.brewTimeMilliseconds = Date.now() - Number(timestamp);
+      }
+
       this.brew.brewTimeMilliseconds += this.timerTickMilliseconds;
     }
 
-    startTimer() {
+    startTimer(setQueryParameter = true) {
       this.timerRunning = true;
       this.timerIncrementTask = setInterval(this.incrementTimer, this.timerTickMilliseconds);
-      this.$router.replace({ name: 'CreateBrew', query: { ...this.$route.query, timerStarted: Date.now().toString() } });
+
+      if (setQueryParameter) {
+        this.$router.replace({ name: 'CreateBrew', query: { ...this.$route.query, timerStarted: Date.now().toString() } });
+      }
 
       this.wakeLock.enable();
     }
@@ -680,14 +691,14 @@ export default class CreateBrew extends Vue {
         this.brew = new Brew(this.beanId);
       }
 
-
       if (this.$route.query.timerStarted) {
         const { timerStarted, brewStep } = this.$route.query;
         const elapsed = Date.now() - Number(timerStarted);
+
         this.brew.brewTimeMilliseconds = elapsed;
 
         if (brewStep === '2') {
-          this.startTimer();
+          this.startTimer(false);
         }
       }
 
