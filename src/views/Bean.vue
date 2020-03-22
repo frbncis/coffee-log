@@ -266,7 +266,8 @@ export default Vue.extend({
   async mounted() {
     store.commit('SET_TITLE', 'Bean Details');
 
-    const { beanId, tab } = this.$route.params;
+    const { beanId } = this.$route.params;
+    const { tab } = this.$route.query as { [query: string]: string };
     const result = await this.getBeanById(beanId);
 
     if (tab) {
