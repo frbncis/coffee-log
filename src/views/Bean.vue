@@ -108,97 +108,110 @@
         key="brews"
         value="brews"
       >
-        <v-card
-          v-for="brew in brews"
-          tile
-          outlined
-          :key="brew.id"
-          class="mx-3 mt-3"
-          @click="() => goToCreateBrew(bean.id, brew.id)"
+        <v-window
+          v-model="window"
+          :show-arrows="true"
         >
-          <v-list-item>
-            <v-list-item-title>
-            {{ formatDateTime(brew.brewDateTime) }}
-            </v-list-item-title>
-
-            <v-spacer />
-
-            <v-subheader
-              class="brew-setting-subheader"
+          <v-window-item>
+            <v-card
+              v-for="brew in brews"
+              tile
+              outlined
+              :key="brew.id"
+              class="mx-3 mt-3"
+              @click="() => goToCreateBrew(bean.id, brew.id)"
             >
-              1:{{ Math.round(brew.waterVolume/brew.grindWeight) }}
-            </v-subheader>
+              <v-list-item>
+                <v-list-item-title>
+                {{ formatDateTime(brew.brewDateTime) }}
+                </v-list-item-title>
 
-            <v-subheader>
-              {{ brew.tasting.tastiness.quantity }}
+                <v-spacer />
 
-              <v-icon
-                class="pl-1"
-                disabled
-              >
-                mdi-star
-              </v-icon>
-            </v-subheader>
-          </v-list-item>
+                <v-subheader
+                  class="brew-setting-subheader"
+                >
+                  1:{{ Math.round(brew.waterVolume/brew.grindWeight) }}
+                </v-subheader>
 
-          <v-divider class="mx-4" />
+                <v-subheader>
+                  {{ brew.tasting.tastiness.quantity }}
 
-          <v-list-item class="text-center">
-            <v-icon
-              disabled
-              size="16"
-            >
-              mdi-scale
-            </v-icon>
-            <v-subheader
-              class="brew-setting-subheader"
-            >
-              {{ brew.grindWeight }} g
-            </v-subheader>
+                  <v-icon
+                    class="pl-1"
+                    disabled
+                  >
+                    mdi-star
+                  </v-icon>
+                </v-subheader>
+              </v-list-item>
 
-            <v-spacer />
+              <v-divider class="mx-4" />
 
-            <v-icon
-              disabled
-              size="16"
-            >
-              mdi-water
-            </v-icon>
-            <v-subheader
-              class="brew-setting-subheader"
-            >
-              {{ brew.waterVolume }} mL
-            </v-subheader>
+              <v-list-item class="text-center">
+                <v-icon
+                  disabled
+                  size="16"
+                >
+                  mdi-scale
+                </v-icon>
+                <v-subheader
+                  class="brew-setting-subheader"
+                >
+                  {{ brew.grindWeight }} g
+                </v-subheader>
 
-            <v-spacer />
+                <v-spacer />
 
-            <v-icon
-              disabled
-              size="16"
-            >
-              mdi-grain
-            </v-icon>
-            <v-subheader
-              class="brew-setting-subheader"
-            >
-              {{ brew.grindSetting }} clicks
-            </v-subheader>
+                <v-icon
+                  disabled
+                  size="16"
+                >
+                  mdi-water
+                </v-icon>
+                <v-subheader
+                  class="brew-setting-subheader"
+                >
+                  {{ brew.waterVolume }} mL
+                </v-subheader>
 
-            <v-spacer />
+                <v-spacer />
 
-            <v-icon
-              disabled
-              size="16"
-            >
-              mdi-clock
-            </v-icon>
-            <v-subheader
-              class="brew-setting-subheader"
-            >
-              {{ formatBrewTime(brew.brewTimeMilliseconds) }}
-            </v-subheader>
-          </v-list-item>
-        </v-card>
+                <v-icon
+                  disabled
+                  size="16"
+                >
+                  mdi-grain
+                </v-icon>
+                <v-subheader
+                  class="brew-setting-subheader"
+                >
+                  {{ brew.grindSetting }} clicks
+                </v-subheader>
+
+                <v-spacer />
+
+                <v-icon
+                  disabled
+                  size="16"
+                >
+                  mdi-clock
+                </v-icon>
+                <v-subheader
+                  class="brew-setting-subheader"
+                >
+                  {{ formatBrewTime(brew.brewTimeMilliseconds) }}
+                </v-subheader>
+              </v-list-item>
+            </v-card>
+          </v-window-item>
+
+          <v-window-item>
+            <v-card>
+              Operations on Brew Card
+            </v-card>
+          </v-window-item>
+        </v-window>
       </v-tab-item>
     </v-tabs-items>
 </template>
@@ -261,6 +274,7 @@ export default Vue.extend({
     bean: new Bean(),
     brews: {},
     tab: 'bean',
+    window: 0,
   }),
   async mounted() {
     store.commit('SET_TITLE', 'Bean Details');
