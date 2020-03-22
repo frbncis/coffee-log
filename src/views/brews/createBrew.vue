@@ -66,10 +66,30 @@
                   />
 
                   <v-text-field
+                    v-model="brew.grindSetting"
+                    outlined
+                    type="number"
+                    label="Grind Setting"
+                    suffix="click(s)"
+                  >
+                    <template v-slot:append-outer v-if="shouldShowExtractionImprovement">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{on}">
+                          <v-icon v-on="on">
+                            mdi-alert
+                          </v-icon>
+                        </template>
+                        <span>{{ extractionImprovementMessage }}</span>
+                      </v-tooltip>
+                    </template>
+                  </v-text-field>
+
+                  <v-text-field
                     v-model="brew.grindWeight"
                     outlined
                     type="number"
                     label="Dose"
+                    @change="recalculateBrewRatio"
                   >
                     <template v-slot:append-outer v-if="shouldShowStrengthImprovement">
                       <v-tooltip bottom>
@@ -89,26 +109,35 @@
                     type="number"
                     label="Water Volume"
                     suffix="mL"
+                    @change="recalculateBrewRatio"
                   />
 
-                  <v-text-field
-                    v-model="brew.grindSetting"
-                    outlined
-                    type="number"
-                    label="Grind Setting"
-                    suffix="click(s)"
+                  <v-subheader class="pl-0">Brew Ratio</v-subheader>
+
+                  <v-slider
+                    v-model="brewRatio"
+                    min="10"
+                    max="20"
+                    inverse-label
+                    :label="brewRatio"
+                    @change="recalculateDoseFromBrewRatio"
                   >
-                    <template v-slot:append-outer v-if="shouldShowExtractionImprovement">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{on}">
-                          <v-icon v-on="on">
-                            mdi-alert
-                          </v-icon>
-                        </template>
-                        <span>{{ extractionImprovementMessage }}</span>
-                      </v-tooltip>
+                    <template v-slot:prepend>
+                      <v-icon
+                        @click="decrementBrewRatio"
+                      >
+                        mdi-minus
+                      </v-icon>
                     </template>
-                  </v-text-field>
+
+                    <template v-slot:append>
+                      <v-icon
+                        @click="incrementBrewRatio"
+                      >
+                        mdi-plus
+                      </v-icon>
+                    </template>
+                  </v-slider>
                 </v-list-item-content>
               </v-list-item>
             </v-card>
@@ -351,6 +380,8 @@ export default class CreateBrew extends Vue {
 
     brewStepField = 1;
 
+    brewRatio = 15;
+
     timerRunning = false;
 
     wakeLock = new NoSleep();
@@ -424,6 +455,18 @@ export default class CreateBrew extends Vue {
       return this.brewStep < 4;
     }
 
+    incrementBrewRatio() {
+      this.brewRatio += 1;
+
+      this.recalculateDoseFromBrewRatio();
+    }
+
+    decrementBrewRatio() {
+      this.brewRatio -= 1;
+
+      this.recalculateDoseFromBrewRatio();
+    }
+
     incrementTimer() {
       this.brew.brewTimeMilliseconds += this.timerTickMilliseconds;
     }
@@ -483,7 +526,17 @@ export default class CreateBrew extends Vue {
           waterVolume: this.previousBrew.waterVolume,
           grindSetting: this.previousBrew.grindSetting,
         };
+
+        this.recalculateBrewRatio();
       }
+    }
+
+    recalculateBrewRatio() {
+      this.brewRatio = this.brew.waterVolume / this.brew.grindWeight;
+    }
+
+    recalculateDoseFromBrewRatio() {
+      this.brew.grindWeight = this.brew.waterVolume / this.brewRatio;
     }
 
     async loadPreviousBrew() {

@@ -123,6 +123,12 @@
 
             <v-spacer />
 
+            <v-subheader
+              class="brew-setting-subheader"
+            >
+              1:{{ Math.round(brew.waterVolume/brew.grindWeight) }}
+            </v-subheader>
+
             <v-subheader>
               {{ brew.tasting.tastiness.quantity }}
 
