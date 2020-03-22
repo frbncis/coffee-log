@@ -132,7 +132,10 @@
             <v-subheader>
               {{ brew.tasting.tastiness.quantity }}
 
-              <v-icon disabled>
+              <v-icon
+                class="pl-1"
+                disabled
+              >
                 mdi-star
               </v-icon>
             </v-subheader>
