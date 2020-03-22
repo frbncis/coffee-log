@@ -470,10 +470,10 @@ export default class CreateBrew extends Vue {
     incrementTimer() {
       // Ensure there isn't drift between the timestamp query parameter
       // and the variable.
-      const { timestamp } = this.$route.query as { [query: string]: string };
+      const { timerStarted } = this.$route.query as { [query: string]: string };
 
-      if (Math.abs(this.brew.brewTimeMilliseconds - Number(timestamp)) > 2000) {
-        this.brew.brewTimeMilliseconds = Date.now() - Number(timestamp);
+      if (Math.abs(this.brew.brewTimeMilliseconds - Number(timerStarted)) > 2000) {
+        this.brew.brewTimeMilliseconds = Date.now() - Number(timerStarted);
       }
 
       this.brew.brewTimeMilliseconds += this.timerTickMilliseconds;
