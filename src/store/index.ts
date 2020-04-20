@@ -223,10 +223,6 @@ export default new Vuex.Store<State>({
 
         documentId = document.id;
 
-        console.log('updating recent brews');
-
-        console.log(context.state.user.metadata.id);
-
         // TODO: Move to different action.
         let { recentBeans } = context.state.user.data;
 
