@@ -12,7 +12,11 @@
           :loading="loading"
           type="image"
         >
-          <v-img :src="bean.imageUrl" />
+          <v-img
+            :src="bean.imageUrl"
+            contain
+            max-height="400px"
+          />
         </v-skeleton-loader>
 
         <v-skeleton-loader
@@ -33,12 +37,6 @@
               icon
             >
               <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-            <v-btn icon>
-              <v-icon>mdi-heart</v-icon>
-            </v-btn>
-            <v-btn icon>
-              <v-icon>mdi-share-variant</v-icon>
             </v-btn>
           </v-card-actions>
         </v-skeleton-loader>

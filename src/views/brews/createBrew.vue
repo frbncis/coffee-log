@@ -658,22 +658,19 @@ export default class CreateBrew extends Vue {
 
       await this.saveBrew();
 
-      this.$router.push({ name: 'Brews' });
+      this.$router.push({ name: 'Bean', params: { beanId: this.brew.beanId } });
     }
 
     async saveBrew() {
-      if (this.brew.id) {
-        await brewsCollection.doc(this.brew.id).update(JSON.parse(JSON.stringify(this.brew)));
-      } else {
-        const document = await brewsCollection.add(JSON.parse(JSON.stringify(this.brew)));
+      const id = await this.saveBrewAction(this.brew);
 
-        await beansCollection.doc(this.selectedBean.id).collection('brews').add({ id: this.selectedBean.id });
-
-        this.brew.id = document.id;
-
-        this.$router.push({ name: 'CreateBrew', query: { ...this.$route.query, brewId: this.brew.id } });
+      if (!this.brew.id) {
+        this.brew.id = id;
       }
     }
+
+    @Action('saveBrew')
+    saveBrewAction!: (brew: Brew) => Promise<string>;
 
     async mounted() {
       this.setBottomNavigation([]);

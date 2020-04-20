@@ -9,32 +9,12 @@
       <!-- Empty div to occupy default slot so skeleton
         will load while v-for renders. -->
       <div />
-      <div v-for="bean in beans" :key="bean.id">
-        <v-row dense>
-          <v-list-item
-            four-line
-            @click="() => goToBeanDetails(bean.id)"
-          >
-            <v-list-item-avatar
-              tile
-              size="84"
-            >
-              <v-img
-                :src="bean.imageUrl"
-              />
-            </v-list-item-avatar>
 
-            <v-list-item-content>
-              <div class="overline">{{ bean.roaster }}</div>
-              <v-list-item-title>{{ bean.name }}</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ bean.originCountry }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-row>
-        <v-divider />
-      </div>
+      <beans-list
+        :beans="beans"
+        @bean-clicked="goToBeanDetails"
+      />
+
       <v-row dense>
         <v-btn
           block
@@ -55,10 +35,15 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import { Action, State, Mutation } from 'vuex-class';
+import BeansList from '@/components/BeansList.vue';
 import Bean from '../models/beans';
 import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
 
-@Component
+@Component({
+  components: {
+    'beans-list': BeansList,
+  },
+})
 export default class Beans extends Vue {
   @State
   beans!: {[beanId: string]: Bean}

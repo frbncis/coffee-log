@@ -2,17 +2,33 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import Bean from '@/models/beans';
 import Brew from '@/models/brew';
-import { beansCollection, brewsCollection } from '@/services/firebase';
+import { beansCollection, brewsCollection, usersCollection } from '@/services/firebase';
 import BottomNavigatorButtonViewModel from '@/components/bottomNavigator/bottomNavigatorButtonViewModel';
+import firebase from 'firebase';
 
 Vue.use(Vuex);
+
+interface UserMetadata {
+  id: string;
+}
+
+interface UserData {
+  recentBeans: string[];
+  recentBrews: string[];
+}
+
+export interface User {
+  loggedIn: boolean;
+  metadata: UserMetadata;
+  data: UserData;
+}
 
 export interface State {
   title: string;
   showBack: boolean;
   beans: {[beanId: string]: Bean};
   brews: {[brewId: string]: Brew};
-  user: { loggedIn: boolean; data: unknown };
+  user: User;
   bottomNavigator: BottomNavigatorButtonViewModel[];
   appUpdated: boolean;
 }
@@ -25,7 +41,13 @@ export default new Vuex.Store<State>({
     brews: {},
     user: {
       loggedIn: false,
-      data: null,
+      metadata: {
+        id: '',
+      },
+      data: {
+        recentBeans: [],
+        recentBrews: [],
+      },
     },
     bottomNavigator: [],
     appUpdated: false,
@@ -42,7 +64,10 @@ export default new Vuex.Store<State>({
     SET_LOGGED_IN(state, value) {
       state.user.loggedIn = value;
     },
-    SET_USER(state, data) {
+    SET_USER(state, metadata) {
+      state.user.metadata = metadata;
+    },
+    SET_USER_DATA(state, data) {
       state.user.data = data;
     },
     ADD_BEANS(state, beans) {
@@ -80,17 +105,34 @@ export default new Vuex.Store<State>({
     },
   },
   actions: {
-    fetchUser({ commit }, user) {
+    async fetchUser({ commit, dispatch }, user) {
       commit('SET_LOGGED_IN', user !== null);
 
       if (user) {
         commit('SET_USER', {
           displayName: user.displayName,
           email: user.email,
+          id: user.uid,
         });
+
+        await dispatch('ensureUserExistsInDatabase', user.uid);
+
+        await dispatch('bindUserData', user.uid);
       } else {
         commit('SET_USER', null);
       }
+    },
+    async ensureUserExistsInDatabase(context, userId) {
+      const userDocument = await usersCollection.doc(userId).get();
+
+      if (!userDocument.exists) {
+        await usersCollection.doc(userId).set({});
+      }
+    },
+    async bindUserData(context, userId) {
+      const userDocument = await usersCollection.doc(userId).get();
+
+      context.commit('SET_USER_DATA', userDocument.data() as UserData);
     },
     setTitle({ commit }, title) {
       commit('SET_TITLE', title);
@@ -166,6 +208,47 @@ export default new Vuex.Store<State>({
       });
 
       return brews;
+    },
+    async saveBrew(context, brew: Brew): Promise<string> {
+      let documentId;
+
+      if (brew.id) {
+        await brewsCollection.doc(brew.id).update(JSON.parse(JSON.stringify(brew)));
+
+        documentId = brew.id;
+      } else {
+        const document = await brewsCollection.add(JSON.parse(JSON.stringify(brew)));
+
+        await beansCollection.doc(brew.beanId).collection('brews').add({ id: brew.beanId });
+
+        documentId = document.id;
+
+        console.log('updating recent brews');
+
+        console.log(context.state.user.metadata.id);
+
+        // TODO: Move to different action.
+        let { recentBeans } = context.state.user.data;
+
+        // If the bean already exists in the array, remove existing
+        // and then pop at end.
+        const existingEntry = recentBeans
+          .findIndex((previouslyBrewedBeanId) => previouslyBrewedBeanId === brew.beanId);
+
+        if (existingEntry > -1) {
+          recentBeans = recentBeans
+            .filter((previouslyBrewedBeanId) => previouslyBrewedBeanId !== brew.beanId);
+        }
+
+        recentBeans.push(brew.beanId);
+
+        await usersCollection.doc(context.state.user.metadata.id).update({
+          recentBrews: firebase.firestore.FieldValue.arrayUnion(documentId),
+          recentBeans,
+        });
+      }
+
+      return documentId;
     },
     async getBeanById(context, beanId) {
       let bean: Bean | null = null;
