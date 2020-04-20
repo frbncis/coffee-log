@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
+import 'firebase/performance';
 import 'firebase/storage';
 
 const config = {
@@ -18,15 +19,18 @@ firebase.initializeApp(config);
 
 const db = firebase.firestore();
 const auth = firebase.auth();
+const perf = firebase.performance();
 const storage = firebase.storage();
 
 const beansCollection = db.collection('beans');
 const brewsCollection = db.collection('brews');
 const usersCollection = db.collection('users');
 
+
 export {
   auth,
   db,
+  perf,
   storage,
   beansCollection,
   brewsCollection,
