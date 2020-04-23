@@ -59,6 +59,9 @@ export default new Vuex.Store<State>({
     beansLoaded(state) {
       return state.beans === {};
     },
+    showAppBarTabs(state) {
+      return state.bottomNavigator?.length > 0;
+    },
   },
   mutations: {
     SET_LOGGED_IN(state, value) {

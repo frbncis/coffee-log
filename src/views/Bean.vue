@@ -4,10 +4,6 @@
         key="bean"
         value="bean"
       >
-        <v-card
-          class="mx-5 mt-5 mb-5 pb-5"
-          outlined
-        >
         <v-skeleton-loader
           :loading="loading"
           type="image"
@@ -15,7 +11,6 @@
           <v-img
             :src="bean.imageUrl"
             contain
-            max-height="400px"
           />
         </v-skeleton-loader>
 
@@ -54,6 +49,16 @@
           </v-list-item>
         </v-skeleton-loader>
 
+        <v-skeleton-loader
+          :loading="loading"
+          type="list-item-two-line"
+        >
+          <v-card-title>
+            <!-- <v-list-item-title>Tasting Notes</v-list-item-title> -->
+            <v-list-item-subtitle>{{ bean.tastingNotes }}</v-list-item-subtitle>
+          </v-card-title>
+        </v-skeleton-loader>
+
         <v-card-text style="white-space: pre-line;">
           <v-skeleton-loader
           :loading="loading"
@@ -87,19 +92,6 @@
           </v-list-item>
 
         </v-skeleton-loader>
-
-        <v-divider class="mx-4"></v-divider>
-
-        <v-skeleton-loader
-          :loading="loading"
-          type="list-item-two-line"
-        >
-          <v-card-title>
-            <v-list-item-title>Tasting Notes</v-list-item-title>
-            <v-list-item-subtitle>{{ bean.tastingNotes }}</v-list-item-subtitle>
-          </v-card-title>
-        </v-skeleton-loader>
-        </v-card>
       </v-tab-item>
 
       <v-tab-item

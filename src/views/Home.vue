@@ -1,14 +1,17 @@
 <template>
-  <div class="pt-2 pb-2 pl-3 pr-3">
-    <h1 class="subtitle-1">Recently Brewed</h1>
+  <div class="pt-5 pb-5 pl-3 pr-3">
+    <h1 class="headline pb-2 font-weight-bold">Recently Brewed</h1>
+      <v-divider />
       <v-row dense>
         <v-col
           v-for="bean in recentBeans"
           :key="bean.id"
-          class="pt-2"
+          class="pt-5"
         >
           <v-card
-            @click="() => goToBeanDetails(bean.id)"
+            @click.stop="() => goToBeanDetails(bean.id)"
+            flat
+            outlined
           >
             <v-img
               :src="bean.imageUrl"
@@ -19,21 +22,9 @@
               <v-card-actions>
                 <v-list-item class="grow">
                   <v-list-item-content>
-                    <v-list-item-title v-text="bean.name" />
-                    <v-list-item-subtitle v-text="bean.roaster" />
+                    <v-list-item-subtitle class="overline" v-text="bean.roaster" />
+                    <v-list-item-title class="font-weight-medium" v-text="bean.name" />
                   </v-list-item-content>
-
-                  <v-row
-                    align="center"
-                    justify="end"
-                  >
-                    <v-btn
-                      icon
-                      @click="() => goToCreateBrew(bean.id)"
-                    >
-                      <v-icon>mdi-coffee</v-icon>
-                    </v-btn>
-                  </v-row>
                 </v-list-item>
               </v-card-actions>
             </v-img>
@@ -74,7 +65,7 @@ export default class Home extends Vue {
   }
 
   mounted() {
-    this.setTitle('');
+    this.setTitle('Brew');
   }
 
   get recentBeans() {
@@ -92,10 +83,6 @@ export default class Home extends Vue {
     }
 
     return [];
-  }
-
-  goToCreateBrew(beanId: string) {
-    this.$router.push({ name: 'CreateBrew', query: { beanId } });
   }
 
   goToBeanDetails(beanId: string) {

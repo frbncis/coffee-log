@@ -39,20 +39,30 @@
 
     <v-app-bar
       app
-      color="indigo"
-      dark
+      flat
+      hide-on-scroll
     >
       <v-app-bar-nav-icon
         v-if="!showBack"
         @click.stop="drawer = !drawer"
       />
+
       <v-app-bar-nav-icon
         v-else
         @click.stop="goHistoryBack"
       >
         <v-icon>mdi-arrow-left</v-icon>
       </v-app-bar-nav-icon>
+
       <v-toolbar-title>{{ title }}</v-toolbar-title>
+
+      <template
+        v-slot:extension
+        v-if="showAppBarTabs"
+      >
+        <app-bar-tabs
+        />
+      </template>
     </v-app-bar>
 
     <v-content>
@@ -93,6 +103,7 @@
         </v-btn>
       </v-speed-dial> -->
     </v-content>
+
     <v-snackbar
       v-model="appUpdated"
     >
@@ -105,19 +116,22 @@
         Refresh
       </v-btn>
     </v-snackbar>
-    <bottom-navigator />
+    <!-- <bottom-navigator /> -->
   </v-app>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import BottomNavigator from '@/components/BottomNavigator.vue';
+import { mapState, mapGetters } from 'vuex';
+import AppBarTabs from '@/components/AppBarTabs.vue';
 
 export default {
   components: {
-    'bottom-navigator': BottomNavigator,
+    'app-bar-tabs': AppBarTabs,
   },
   computed: {
+    ...mapGetters([
+      'showAppBarTabs',
+    ]),
     ...mapState({
       title: 'title',
       showBack: 'showBack',
@@ -132,6 +146,7 @@ export default {
     fab: false,
     bottomNav: 'recent',
     snackbar: true,
+    showTabBar: true,
   }),
   methods: {
     goHistoryBack() {
