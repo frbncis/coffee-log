@@ -1,7 +1,6 @@
 <template>
   <div class="pt-5 pb-5 pl-3 pr-3">
-    <h1 class="headline pb-2 font-weight-bold">Recently Brewed</h1>
-      <v-divider />
+    <h1 class="title">Recently Brewed</h1>
       <v-row dense>
         <v-col
           v-for="bean in recentBeans"
@@ -10,13 +9,11 @@
         >
           <v-card
             @click.stop="() => goToBeanDetails(bean.id)"
-            flat
-            outlined
           >
             <v-img
               :src="bean.imageUrl"
               class="align-end"
-              gradient="to bottom, rgba(255,255,255,.1), rgba(255,255,255,.9)"
+              gradient="to bottom, rgba(128,128,128,0.1), rgba(128,128,128,0.9)"
               height="200px"
             >
               <v-card-actions>

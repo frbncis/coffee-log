@@ -3,6 +3,8 @@ import Vuetify from 'vuetify';
 import 'vuetify/dist/vuetify.min.css';
 import '@mdi/font/css/materialdesignicons.css'; // Ensure you are using css-loader
 
+const mq = window.matchMedia('(prefers-color-scheme: dark)');
+
 Vue.use(Vuetify);
 
 export default new Vuetify({
@@ -10,6 +12,7 @@ export default new Vuetify({
     iconfont: 'mdi', // default - only for display purposes
   },
   theme: {
+    dark: mq.matches,
     themes: {
       light: {
         primary: '#ee44aa',
