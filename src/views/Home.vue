@@ -6,6 +6,7 @@
           v-for="bean in recentBeans"
           :key="bean.id"
           class="pt-5"
+          cols="6"
         >
           <v-card
             @click.stop="() => goToBeanDetails(bean.id)"
@@ -13,18 +14,9 @@
             <v-img
               :src="bean.imageUrl"
               class="align-end"
-              gradient="to bottom, rgba(128,128,128,0.1), rgba(128,128,128,0.9)"
-              height="200px"
-            >
-              <v-card-actions>
-                <v-list-item class="grow">
-                  <v-list-item-content>
-                    <v-list-item-subtitle class="overline" v-text="bean.roaster" />
-                    <v-list-item-title class="font-weight-medium" v-text="bean.name" />
-                  </v-list-item-content>
-                </v-list-item>
-              </v-card-actions>
-            </v-img>
+            />
+
+            <v-card-title class="subtitle-2" v-text="bean.name" />
           </v-card>
         </v-col>
       </v-row>
@@ -73,7 +65,7 @@ export default class Home extends Vue {
 
       const topThreeRecentBeans = buffer
         .reverse()
-        .slice(0, 2)
+        .slice(0, 4)
         .map((id) => this.beans[id]);
 
       return topThreeRecentBeans;
