@@ -30,6 +30,7 @@ export interface State {
   brews: {[brewId: string]: Brew};
   user: User;
   bottomNavigator: BottomNavigatorButtonViewModel[];
+  topNavigator: BottomNavigatorButtonViewModel[];
   appUpdated: boolean;
 }
 
@@ -50,6 +51,7 @@ export default new Vuex.Store<State>({
       },
     },
     bottomNavigator: [],
+    topNavigator: [],
     appUpdated: false,
   },
   getters: {
@@ -60,7 +62,7 @@ export default new Vuex.Store<State>({
       return state.beans === {};
     },
     showAppBarTabs(state) {
-      return state.bottomNavigator?.length > 0;
+      return state.topNavigator?.length > 0;
     },
   },
   mutations: {
@@ -102,6 +104,9 @@ export default new Vuex.Store<State>({
     },
     SET_BOTTOM_NAVIGATION(state, bottomNavigatorButtonViewModels) {
       state.bottomNavigator = bottomNavigatorButtonViewModels;
+    },
+    SET_TOP_NAVIGATION(state, bottomNavigatorButtonViewModels) {
+      state.topNavigator = bottomNavigatorButtonViewModels;
     },
     NOTIFY_APPLICATION_UPDATED(state, isUpdated) {
       state.appUpdated = isUpdated;

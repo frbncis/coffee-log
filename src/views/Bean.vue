@@ -212,7 +212,7 @@ export default Vue.extend({
       this.$router.push({ name: 'CreateBeans', query: { beanId } });
     },
     ...mapMutations({
-      setBottomNavigation: 'SET_BOTTOM_NAVIGATION',
+      setTopNavigation: 'SET_TOP_NAVIGATION',
     }),
     goToBeanTab() {
       this.tab = 'bean';
@@ -261,7 +261,7 @@ export default Vue.extend({
       this.tab = tab;
     }
 
-    this.setBottomNavigation([
+    this.setTopNavigation([
       new BottomNavigatorButtonViewModel(
         'Bean',
         'bean',

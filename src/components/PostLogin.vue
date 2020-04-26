@@ -1,54 +1,12 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-    >
-      <v-list dense>
-        <v-list-item link @click="() => this.$router.push({ name: 'Home' })">
-          <v-list-item-action>
-            <v-icon>mdi-home</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Home</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item link @click="() => this.$router.push({ name: 'Beans' })">
-          <v-list-item-action>
-            <v-icon>mdi-seed</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Beans</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-
-      <template v-slot:append>
-        <v-list dense>
-          <v-list-item link @click.stop="goToSettings">
-            <v-list-item-action>
-              <v-icon>mdi-cog</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Settings</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </template>
-    </v-navigation-drawer>
-
     <v-app-bar
       app
       flat
       hide-on-scroll
     >
       <v-app-bar-nav-icon
-        v-if="!showBack"
-        @click.stop="drawer = !drawer"
-      />
-
-      <v-app-bar-nav-icon
-        v-else
+        v-if="showBack"
         @click.stop="goHistoryBack"
       >
         <v-icon>mdi-arrow-left</v-icon>
@@ -60,8 +18,7 @@
         v-slot:extension
         v-if="showAppBarTabs"
       >
-        <app-bar-tabs
-        />
+        <app-bar-tabs />
       </template>
     </v-app-bar>
 
@@ -116,17 +73,20 @@
         Refresh
       </v-btn>
     </v-snackbar>
-    <!-- <bottom-navigator /> -->
+    <bottom-navigator />
   </v-app>
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapMutations } from 'vuex';
 import AppBarTabs from '@/components/AppBarTabs.vue';
+import BottomNavigator from './BottomNavigator.vue';
+import BottomNavigatorButtonViewModel from './bottomNavigator/bottomNavigatorButtonViewModel';
 
 export default {
   components: {
     'app-bar-tabs': AppBarTabs,
+    'bottom-navigator': BottomNavigator,
   },
   computed: {
     ...mapGetters([
@@ -142,13 +102,21 @@ export default {
     source: String,
   },
   data: () => ({
-    drawer: null,
     fab: false,
     bottomNav: 'recent',
     snackbar: true,
     showTabBar: true,
   }),
+  created() {
+    this.setBottomNavigation([
+      new BottomNavigatorButtonViewModel('Home', 'home', 'mdi-home', () => this.$router.push({ name: 'Home' })),
+      new BottomNavigatorButtonViewModel('Beans', 'beans', 'mdi-seed', () => this.$router.push({ name: 'Beans' })),
+    ]);
+  },
   methods: {
+    ...mapMutations({
+      setBottomNavigation: 'SET_BOTTOM_NAVIGATION',
+    }),
     goHistoryBack() {
       this.$router.go(-1);
     },

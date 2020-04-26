@@ -650,8 +650,8 @@ export default class CreateBrew extends Vue {
     @Action
     getBrewById!: (brewId: string) => Promise<Brew>;
 
-    @Mutation('SET_BOTTOM_NAVIGATION')
-    setBottomNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
+    @Mutation('setTopNavigation')
+    setTopNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
 
     async completeBrew() {
       this.brew.completed = true;
@@ -673,7 +673,7 @@ export default class CreateBrew extends Vue {
     saveBrewAction!: (brew: Brew) => Promise<string>;
 
     async mounted() {
-      this.setBottomNavigation([]);
+      this.setTopNavigation([]);
 
       if (this.$route.query.brewStep) {
         this.brewStepField = Number(this.$route.query.brewStep);

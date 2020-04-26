@@ -54,12 +54,12 @@ export default class Beans extends Vue {
   @Mutation('SET_TITLE')
   setTitle!: (appBarTitle: string) => void;
 
-  @Mutation('SET_BOTTOM_NAVIGATION')
-  setBottomNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
+  @Mutation('SET_TOP_NAVIGATION')
+  setTopNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
 
   mounted() {
     this.setTitle('Beans');
-    this.setBottomNavigation([]);
+    this.setTopNavigation([]);
   }
 
   async created() {

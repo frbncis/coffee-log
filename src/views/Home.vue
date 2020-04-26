@@ -30,6 +30,7 @@ import { Action, Mutation, State } from 'vuex-class';
 import BeansList from '@/components/BeansList.vue';
 import Bean from '@/models/beans';
 import { User } from '../store';
+import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
 
 @Component({
   components: {
@@ -46,6 +47,9 @@ export default class Home extends Vue {
   @Action
   getBeans!: () => Promise<void>
 
+  @Mutation('SET_TOP_NAVIGATION')
+  setTopNavigation!: (navigation: BottomNavigatorButtonViewModel[]) => void;
+
   @Mutation('SET_TITLE')
   setTitle!: (appBarTitle: string) => void;
 
@@ -54,7 +58,8 @@ export default class Home extends Vue {
   }
 
   mounted() {
-    this.setTitle('Brew');
+    this.setTopNavigation([]);
+    this.setTitle('Coffee Log');
   }
 
   get recentBeans() {

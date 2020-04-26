@@ -29,11 +29,10 @@ export default class BottomNavigator extends Vue {
   @State('bottomNavigator')
   buttons!: BottomNavigatorButtonViewModel[];
 
+  bottomNav = '';
 
   get shouldRenderButtons() {
     return this.buttons?.length > 0;
   }
-
-  bottomNav = '';
 }
 </script>

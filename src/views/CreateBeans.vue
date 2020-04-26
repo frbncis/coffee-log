@@ -142,7 +142,7 @@ export default Vue.extend({
     ],
   }),
   async created() {
-    this.setBottomNavigation([]);
+    this.setTopNavigation([]);
 
     if (this.$route.query.beanId) {
       const { beanId } = this.$route.query;
@@ -155,7 +155,7 @@ export default Vue.extend({
   },
   methods: {
     ...mapMutations({
-      setBottomNavigation: 'SET_BOTTOM_NAVIGATION',
+      setTopNavigation: 'SET_TOP_NAVIGATION',
     }),
     ...mapActions({
       getBeanById: 'getBeanById',
