@@ -54,27 +54,29 @@
 
         <v-divider />
 
-        <v-card-text
-          style="white-space: pre-line;"
-        >
+        <v-card-text>
           <v-skeleton-loader
           :loading="loading"
           type="paragraph"
           >
-            {{ bean.story }}
+            <p>{{ bean.story }}</p>
           </v-skeleton-loader>
 
-          <v-divider class="mx-4"></v-divider>
+          <v-divider />
 
           <v-skeleton-loader
             :loading="loading"
             type="paragraph"
+            class="bean-details"
           >
-            <v-card-title>Origin</v-card-title>
-
             <v-list-item>
               <v-list-item-title>Country</v-list-item-title>
               <v-list-item-subtitle>{{ bean.originCountry }}</v-list-item-subtitle>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-title>Region</v-list-item-title>
+              <v-list-item-subtitle>{{ bean.originRegion }}</v-list-item-subtitle>
             </v-list-item>
 
             <v-list-item>
@@ -293,5 +295,13 @@ export default Vue.extend({
 .brew-parameters-row {
   min-height: unset !important;
   padding-top: 0.75em;
+}
+
+.bean-details {
+  padding-top: 0.75em;
+}
+
+.bean-details div.v-list-item {
+  padding-left: 0;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="px-0 pt-0 pb-0">
     <v-skeleton-loader
       type="bean@4"
       tile
