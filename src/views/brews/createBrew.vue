@@ -147,56 +147,49 @@
           <v-card
             class="px-5 pt-5"
           >
-            <h1 class="display-3">{{ timeElapsedFormatted }}
-              <v-btn
-                icon
-                :disabled="timerRunning"
-                @click.stop="showEditTimeDialog"
+            <h1 class="display-3"
+              @click.stop="showEditTimeDialog"
+            >
+              {{ timeElapsedFormatted }}
+
+              <v-dialog
+                v-model="editTimeDialog"
+                max-width="290"
               >
-                <v-icon>
-                  mdi-pencil
-                </v-icon>
+                <v-card>
+                  <v-card-title class="headline">Edit Brew Time</v-card-title>
 
-                <v-dialog
-                  v-model="editTimeDialog"
-                  max-width="290"
-                >
-                  <v-card>
-                    <v-card-title class="headline">Edit Brew Time</v-card-title>
-
-                    <v-card-text>
-                      <v-text-field
-                        type="number"
-                        outlined
-                        suffix="seconds"
-                        v-model="editTimeBrewTimeSeconds"
-                      />
-                    </v-card-text>
+                  <v-card-text>
+                    <v-text-field
+                      type="number"
+                      outlined
+                      suffix="seconds"
+                      v-model="editTimeBrewTimeSeconds"
+                    />
+                  </v-card-text>
 
 
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
 
-                      <v-btn
-                        color="green darken-1"
-                        text
-                        @click="commitEditTimeDialog"
-                      >
-                        Set
-                      </v-btn>
+                    <v-btn
+                      text
+                      @click="commitEditTimeDialog"
+                    >
+                      Set
+                    </v-btn>
 
-                      <v-btn
-                        color="red darken-1"
-                        text
-                        @click="dismissEditTimeDialog"
-                      >
-                        Cancel
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-              </v-btn>
+                    <v-btn
+                      text
+                      @click="dismissEditTimeDialog"
+                    >
+                      Cancel
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
             </h1>
+
             <v-card-subtitle v-if="previousBrew">
               Previous Brew Time: {{ formatBrewTime(previousBrew.brewTimeMilliseconds) }}
             </v-card-subtitle>
