@@ -144,9 +144,10 @@
         </v-stepper-content>
 
         <v-stepper-content step="2" class="text-center">
-          <v-card>
+          <v-card
+            class="px-5 pt-5"
+          >
             <h1 class="display-3">{{ timeElapsedFormatted }}
-
               <v-btn
                 icon
                 :disabled="timerRunning"
@@ -422,12 +423,12 @@ export default class CreateBrew extends Vue {
     }
 
     get timeElapsedFormatted() {
-      return formatTime(this.brew.brewTimeMilliseconds);
+      return formatTime(this.brew.brewTimeMilliseconds, false);
     }
 
     // eslint-disable-next-line class-methods-use-this
     formatBrewTime(timestamp: number) {
-      return formatTime(timestamp);
+      return formatTime(timestamp, false);
     }
 
     showEditTimeDialog() {
@@ -650,7 +651,7 @@ export default class CreateBrew extends Vue {
     @Action
     getBrewById!: (brewId: string) => Promise<Brew>;
 
-    @Mutation('setTopNavigation')
+    @Mutation('SET_TOP_NAVIGATION')
     setTopNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
 
     async completeBrew() {
