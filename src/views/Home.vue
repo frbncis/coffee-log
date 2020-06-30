@@ -8,16 +8,33 @@
           class="pt-5"
           cols="6"
         >
-          <v-card
-            @click.stop="() => goToBeanDetails(bean.id)"
+          <v-skeleton-loader
+            class="mx-auto"
+            max-width="300"
+            type="card"
+            :loading="loading"
           >
-            <v-img
-              :src="bean.imageUrl"
-              class="align-end"
-            />
+            <v-card
+              @click.stop="() => goToBeanDetails(bean.id)"
+            >
+              <v-img
+                :src="bean.imageUrl"
+                class="align-end"
+              >
+                <template v-slot:placeholder>
+                  <v-row
+                    class="fill-height ma-0"
+                    align="center"
+                    justify="center"
+                  >
+                    <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                  </v-row>
+                </template>
+              </v-img>
 
-            <v-card-title class="subtitle-2" v-text="bean.name" />
-          </v-card>
+              <v-card-title class="subtitle-2" v-text="bean.name" />
+            </v-card>
+          </v-skeleton-loader>
         </v-col>
       </v-row>
   </div>
@@ -47,6 +64,8 @@ export default class Home extends Vue {
   @Action
   getBeans!: () => Promise<void>
 
+  loading = true;
+
   @Mutation('SET_TOP_NAVIGATION')
   setTopNavigation!: (navigation: BottomNavigatorButtonViewModel[]) => void;
 
@@ -54,7 +73,11 @@ export default class Home extends Vue {
   setTitle!: (appBarTitle: string) => void;
 
   async created() {
+    this.loading = true;
+
     await this.getBeans();
+
+    this.loading = false;
   }
 
   mounted() {
