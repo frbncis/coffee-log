@@ -1,5 +1,8 @@
 <template>
-    <v-tabs-items v-model="tab">
+    <v-tabs-items
+      v-model="tab"
+      touchless
+    >
       <v-tab-item
         key="bean"
         value="bean"
@@ -97,164 +100,205 @@
         key="brews"
         value="brews"
       >
-        <template
-          v-for="brew in brews"
-        >
-          <v-divider
-            :key="'divider' + brew.id"
-          />
-          <v-list-item
-            :key="brew.id"
-            @click="function () { return 0; }"
+        <v-list>
+          <template
+            v-for="brew in brews"
           >
-            <v-list-item-action
-              v-if="showDeletionCheckbox"
+            <swipeable-list-item
+              :id="`brew-${brew.id}`"
+              :key="`brew-${brew.id}`"
             >
-              <v-checkbox
-                v-model="active"
-                color="primary"
-              />
-            </v-list-item-action>
+              <template v-slot:edit-item>
+                <v-divider />
 
-            <v-list-item-content
-              @click="() => goToCreateBrew(bean.id, brew.id)"
-            >
-              <v-list-item-title>
-                {{ formatDateTime(brew.brewDateTime) }}
-              </v-list-item-title>
+                <v-list-item>
+                    <v-icon>mdi-delete</v-icon>
+                </v-list-item>
+              </template>
 
-              <v-list-item
-                class="px-0 mx-0 brew-parameters-row"
-              >
-                <v-icon
-                  disabled
-                  size="16"
+              <template v-slot:view-item>
+                <v-divider />
+
+                <v-list-item>
+                  <v-list-item-title>
+                    {{ formatDateTime(brew.brewDateTime) }}
+                  </v-list-item-title>
+                </v-list-item>
+
+                <v-list-item
+                  @click="() => goToCreateBrew(bean.id, brew.id)"
                 >
-                  mdi-scale
-                </v-icon>
-                <v-subheader
-                  class="brew-setting-subheader"
-                >
-                  {{ brew.grindWeight }} g
-                </v-subheader>
+                  <v-list-item-content>
+                    <v-list-item
+                      class="px-0 mx-0 brew-parameters-row"
+                    >
+                      <v-icon
+                        disabled
+                        size="16"
+                      >
+                        mdi-scale
+                      </v-icon>
+                      <v-subheader
+                        class="brew-setting-subheader"
+                      >
+                        {{ brew.grindWeight }} g
+                      </v-subheader>
 
-                <v-spacer />
+                      <v-spacer />
 
-                <v-icon
-                  disabled
-                  size="16"
-                >
-                  mdi-water
-                </v-icon>
-                <v-subheader
-                  class="brew-setting-subheader"
-                >
-                  {{ brew.waterVolume }} mL
-                </v-subheader>
+                      <v-icon
+                        disabled
+                        size="16"
+                      >
+                        mdi-water
+                      </v-icon>
+                      <v-subheader
+                        class="brew-setting-subheader"
+                      >
+                        {{ brew.waterVolume }} mL
+                      </v-subheader>
 
-                <v-spacer />
+                      <v-spacer />
 
-                <v-icon
-                  disabled
-                  size="16"
-                >
-                  mdi-grain
-                </v-icon>
-                <v-subheader
-                  class="brew-setting-subheader"
-                >
-                  {{ brew.grindSetting }} clicks
-                </v-subheader>
+                      <v-icon
+                        disabled
+                        size="16"
+                      >
+                        mdi-grain
+                      </v-icon>
+                      <v-subheader
+                        class="brew-setting-subheader"
+                      >
+                        {{ brew.grindSetting }} clicks
+                      </v-subheader>
 
-                <v-spacer />
+                      <v-spacer />
 
-                <v-icon
-                  disabled
-                  size="16"
-                >
-                  mdi-clock
-                </v-icon>
-                <v-subheader
-                  class="brew-setting-subheader"
-                >
-                  {{ formatBrewTime(brew.brewTimeMilliseconds) }}
-                </v-subheader>
-              </v-list-item>
+                      <v-icon
+                        disabled
+                        size="16"
+                      >
+                        mdi-clock
+                      </v-icon>
+                      <v-subheader
+                        class="brew-setting-subheader"
+                      >
+                        {{ formatBrewTime(brew.brewTimeMilliseconds) }}
+                      </v-subheader>
+                    </v-list-item>
 
-              <v-divider />
-            </v-list-item-content>
-          </v-list-item>
-        </template>
+                  </v-list-item-content>
+                </v-list-item>
+
+                <v-list-item>
+                  <v-subheader class="mt-0 pt-0 ml-0 pl-0">
+                    <span class="grey--text text--lighten-2 caption mr-2">
+                      ({{ brew.tasting.tastiness.quantity }})
+                    </span>
+                    <v-rating
+                      v-model="brew.tasting.tastiness.quantity"
+                      color="gray"
+                      background-color="gray"
+                      small
+                      dense
+                      readonly
+                    />
+                  </v-subheader>
+                </v-list-item>
+              </template>
+            </swipeable-list-item>
+          </template>
+        </v-list>
       </v-tab-item>
     </v-tabs-items>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapActions, mapMutations } from 'vuex';
+import Component from 'vue-class-component';
+import { Action, Mutation } from 'vuex-class';
 import Bean from '@/models/beans';
+import Brew from '@/models/brew';
 import formatTime from '@/utils/timeUtils';
+import SwipeableListItem from '../components/SwipeableListItem.vue';
 import store from '../store';
 import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
 
-export default Vue.extend({
-  name: 'Bean',
-  methods: {
-    ...mapActions({
-      getBeanById: 'getBeanById',
-      getBrewsByBeanId: 'getBrewsByBeanId',
-    }),
-    goToCreateBrew(beanId: string, brewId: string) {
-      this.$router.push({ name: 'CreateBrew', query: { beanId, brewId } });
-    },
-    goToEditBean(beanId: string) {
-      this.$router.push({ name: 'CreateBeans', query: { beanId } });
-    },
-    ...mapMutations({
-      setTopNavigation: 'SET_TOP_NAVIGATION',
-    }),
-    goToBeanTab() {
-      this.tab = 'bean';
-      this.$router.replace({
-        name: 'Bean',
-        params: this.$route.params,
-        query: { ...this.$route.query, tab: 'bean' },
-      });
-    },
-    goToBrewsTab() {
-      this.tab = 'brews';
-      this.$router.replace({
-        name: 'Bean',
-        params: this.$route.params,
-        query: { ...this.$route.query, tab: 'brews' },
-      });
-    },
-    formatDateTime(timestamp: number) {
-      const b = new Date(timestamp);
+@Component({
+  components: {
+    'swipeable-list-item': SwipeableListItem,
+  },
+})
+export default class BeanView extends Vue {
+  bean = new Bean();
 
-      return `${b.toDateString()} @ ${b.toLocaleTimeString()}`;
-    },
-    formatBrewTime(timestamp: number) {
-      return formatTime(timestamp, false);
-    },
-  },
-  computed: {
-    loading() {
-      return this.bean.name === '';
-    },
-  },
-  data: () => ({
-    bean: new Bean(),
-    brews: {},
-    tab: 'bean',
-    window: 0,
-    showDeletionCheckbox: false,
-  }),
+  brews = {};
+
+  tab = 'bean';
+
+  window = 0;
+
+  @Action
+  getBeanById!: (beanId: string) => Promise<Bean>;
+
+  @Action
+  getBrewsByBeanId!: (beanId: string) => Promise<{[brewId: string]: Brew}>;
+
+  @Mutation('SET_TOP_NAVIGATION')
+  setTopNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
+
+  // eslint-disable-next-line class-methods-use-this
+  customFunction() {
+    console.log('swipe');
+  }
+
+  goToCreateBrew(beanId: string, brewId: string) {
+    this.$router.push({ name: 'CreateBrew', query: { beanId, brewId } });
+  }
+
+  goToEditBean(beanId: string) {
+    this.$router.push({ name: 'CreateBeans', query: { beanId } });
+  }
+
+  goToBeanTab() {
+    this.tab = 'bean';
+    this.$router.replace({
+      name: 'Bean',
+      params: this.$route.params,
+      query: { ...this.$route.query, tab: 'bean' },
+    });
+  }
+
+  goToBrewsTab() {
+    this.tab = 'brews';
+    this.$router.replace({
+      name: 'Bean',
+      params: this.$route.params,
+      query: { ...this.$route.query, tab: 'brews' },
+    });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  formatDateTime(timestamp: number) {
+    const b = new Date(timestamp);
+    return `${b.toDateString()} @ ${b.toLocaleTimeString()}`;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  formatBrewTime(timestamp: number) {
+    return formatTime(timestamp, false);
+  }
+
+  get loading() {
+    return this.bean.name === '';
+  }
+
   async mounted() {
     store.commit('SET_TITLE', 'Bean Details');
 
     const { beanId } = this.$route.params;
     const { tab } = this.$route.query as { [query: string]: string };
+
     const result = await this.getBeanById(beanId);
 
     if (tab) {
@@ -282,8 +326,8 @@ export default Vue.extend({
     }
 
     this.brews = await this.getBrewsByBeanId(beanId);
-  },
-});
+  }
+}
 </script>
 
 <style scoped>

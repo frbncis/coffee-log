@@ -1313,6 +1313,11 @@
   resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
   integrity sha512-7EJYyKTL7tFR8+gDbB6Wwz/arpGa0Mywk1TJbNzKzHtzbwVmY4HR9WqS5VV7dsBUKQmPNr192jHr/VpBluj/hg==
 
+"@types/swiper@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/@types/swiper/-/swiper-5.4.0.tgz#315bb99fdb9d0a517b6dbf08881d5f2edb0d42d1"
+  integrity sha512-+MpoI6aa8iEC5rvIDh8W1ZWq/F5iQNU2JFOFyfNYQl0nBxuLo8kHcoO2VyZR7ft22nRkQitdPMof+FIAX9xHnw==
+
 "@types/webpack-env@^1.15.2":
   version "1.15.2"
   resolved "https://registry.yarnpkg.com/@types/webpack-env/-/webpack-env-1.15.2.tgz#927997342bb9f4a5185a86e6579a0a18afc33b0a"
@@ -3811,6 +3816,13 @@ dom-storage@2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/dom-storage/-/dom-storage-2.1.0.tgz#00fb868bc9201357ea243c7bcfd3304c1e34ea39"
   integrity sha512-g6RpyWXzl0RR6OTElHKBl7nwnK87GUyZMYC7JWsB/IA73vpqK2K6LT39x4VepLxlSsWBFrPVLnsSR5Jyty0+2Q==
+
+dom7@^2.1.5:
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/dom7/-/dom7-2.1.5.tgz#a79411017800b31d8400070cdaebbfc92c1f6377"
+  integrity sha512-xnhwVgyOh3eD++/XGtH+5qBwYTgCm0aW91GFgPJ3XG+jlsRLyJivnbP0QmUBFhI+Oaz9FV0s7cxgXHezwOEBYA==
+  dependencies:
+    ssr-window "^2.0.0"
 
 domain-browser@^1.1.1:
   version "1.2.0"
@@ -9239,6 +9251,11 @@ sshpk@^1.7.0:
     safer-buffer "^2.0.2"
     tweetnacl "~0.14.0"
 
+ssr-window@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ssr-window/-/ssr-window-2.0.0.tgz#98c301aef99523317f8d69618f0010791096efc4"
+  integrity sha512-NXzN+/HPObKAx191H3zKlYomE5WrVIkoCB5IaSdvKokxTpjBdWfr0RaP+1Z5KOfDT0ZVz+2tdtiBkhsEQ9p+0A==
+
 ssri@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/ssri/-/ssri-6.0.1.tgz#2a3c41b28dd45b62b63676ecb74001265ae9edd8"
@@ -9534,6 +9551,14 @@ svgo@^1.0.0:
     stable "^0.1.8"
     unquote "~1.1.1"
     util.promisify "~1.0.0"
+
+swiper@^5.4.5:
+  version "5.4.5"
+  resolved "https://registry.yarnpkg.com/swiper/-/swiper-5.4.5.tgz#a350f654bf68426dbb651793824925512d223c0f"
+  integrity sha512-7QjA0XpdOmiMoClfaZ2lYN6ICHcMm72LXiY+NF4fQLFidigameaofvpjEEiTQuw3xm5eksG5hzkaRsjQX57vtA==
+  dependencies:
+    dom7 "^2.1.5"
+    ssr-window "^2.0.0"
 
 symbol-observable@1.0.1:
   version "1.0.1"
@@ -10139,6 +10164,11 @@ vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
+
+vue-awesome-swiper@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/vue-awesome-swiper/-/vue-awesome-swiper-4.1.1.tgz#8f7ab221ad003021d756b86aa618f429924900fe"
+  integrity sha512-50um10t6N+lJaORkpwSi1wWuMmBI1sgFc9Znsi5oUykw2cO5DzLaBHcO2JNX21R+Ue4TGoIJDhhxjBHtkFrTEQ==
 
 vue-class-component@^7.1.0, vue-class-component@^7.2.2:
   version "7.2.3"
