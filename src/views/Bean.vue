@@ -247,11 +247,6 @@ export default class BeanView extends Vue {
   @Mutation('SET_TOP_NAVIGATION')
   setTopNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
 
-  // eslint-disable-next-line class-methods-use-this
-  customFunction() {
-    console.log('swipe');
-  }
-
   goToCreateBrew(beanId: string, brewId: string) {
     this.$router.push({ name: 'CreateBrew', query: { beanId, brewId } });
   }
