@@ -26,7 +26,6 @@ const beansCollection = db.collection('beans');
 const brewsCollection = db.collection('brews');
 const usersCollection = db.collection('users');
 
-
 export {
   auth,
   db,
