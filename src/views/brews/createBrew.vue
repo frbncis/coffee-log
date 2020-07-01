@@ -168,7 +168,6 @@
                     />
                   </v-card-text>
 
-
                   <v-card-actions>
                     <v-spacer></v-spacer>
 
@@ -347,7 +346,6 @@ import Bean from '@/models/beans';
 import Brew from '@/models/brew';
 import SelectedBeanCard from '@/components/brews/selectedBeanCard.vue';
 import { Route } from 'vue-router';
-import { brewsCollection, beansCollection } from '@/services/firebase';
 import NoSleep from 'nosleep.js';
 import formatTime from '@/utils/timeUtils';
 import BottomNavigatorButtonViewModel from '../../components/bottomNavigator/bottomNavigatorButtonViewModel';
