@@ -120,15 +120,14 @@
 
                       <v-btn
                         depressed
+                        @click="() => goToCreateBrew(
+                          bean.id,
+                          {
+                            brewId: brew.id,
+                            action: 'copy'
+                          })"
                       >
-                        <v-icon
-                          @click="() => goToCreateBrew(
-                            bean.id,
-                            {
-                              brewId: brew.id,
-                              action: 'copy'
-                            })"
-                        >
+                        <v-icon>
                           mdi-coffee
                         </v-icon>
 
@@ -140,14 +139,7 @@
                       <v-btn
                         depressed
                       >
-                        <v-icon
-                          @click="() => goToCreateBrew(
-                            bean.id,
-                            {
-                              brewId: brew.id,
-                              action: 'copy'
-                            })"
-                        >
+                        <v-icon>
                           mdi-delete
                         </v-icon>
 
