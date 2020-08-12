@@ -111,16 +111,59 @@
               <template v-slot:edit-item>
                 <v-divider />
 
-                <v-list-item>
-                    <v-icon>mdi-delete</v-icon>
-                </v-list-item>
+                <v-row>
+                  <v-spacer>
+                    <v-list-item>
+
+                      <v-spacer />
+
+                      <v-btn
+                        depressed
+                      >
+                        <v-icon
+                          @click="() => goToCreateBrew(
+                            bean.id,
+                            {
+                              brewId: brew.id,
+                              action: 'copy'
+                            })"
+                        >
+                          mdi-coffee
+                        </v-icon>
+
+                        <span>Copy Recipe</span>
+                      </v-btn>
+
+                      <v-spacer />
+
+                      <v-btn
+                        depressed
+                      >
+                        <v-icon
+                          @click="() => goToCreateBrew(
+                            bean.id,
+                            {
+                              brewId: brew.id,
+                              action: 'copy'
+                            })"
+                        >
+                          mdi-delete
+                        </v-icon>
+
+                        <span>Delete</span>
+
+                      </v-btn>
+                      <v-spacer />
+                    </v-list-item>
+                  </v-spacer>
+                </v-row>
               </template>
 
               <template v-slot:view-item>
                 <v-divider />
 
                 <v-list-item
-                  @click="() => goToCreateBrew(bean.id, brew.id)"
+                  @click="() => goToCreateBrew(bean.id, { brewId: brew.id, action: 'edit' })"
                 >
                   <v-col>
                   <v-list-item-title>
@@ -242,8 +285,8 @@ export default class BeanView extends Vue {
   @Mutation('SET_TOP_NAVIGATION')
   setTopNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
 
-  goToCreateBrew(beanId: string, brewId: string) {
-    this.$router.push({ name: 'CreateBrew', query: { beanId, brewId } });
+  goToCreateBrew(beanId: string, targetBrew: { brewId: string; action: string }) {
+    this.$router.push({ name: 'CreateBrew', query: { beanId, brewId: targetBrew.brewId, action: targetBrew.action } });
   }
 
   goToEditBean(beanId: string) {

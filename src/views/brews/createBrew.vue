@@ -43,7 +43,7 @@
                         icon
                         class="mx-auth"
                         v-on="on"
-                        v-if="!brew.completed"
+                        v-if="!brew.completed && showLoadPreviousBrew"
                         @click.prevent="populateSetupFromPreviousBrew"
                       >
                         <v-icon>
@@ -368,6 +368,8 @@ export default class CreateBrew extends Vue {
 
     populatedSetupFromPreviousBrew = false;
 
+    showLoadPreviousBrew = true;
+
     beanId!: string;
 
     brewStepField = 1;
@@ -671,12 +673,11 @@ export default class CreateBrew extends Vue {
         this.brewStepField = Number(this.$route.query.brewStep);
       }
 
-      if (this.$route.query.brewId) {
+      if (this.$route.query.brewId && this.$route.query.action === 'edit') {
         this.brew = await this.getBrewById(this.$route.query.brewId as string);
         this.beanId = this.brew.beanId;
       } else if (this.$route.query.beanId) {
         this.beanId = this.$route.query.beanId as string;
-
         this.brew = new Brew(this.beanId);
       }
 
@@ -698,7 +699,14 @@ export default class CreateBrew extends Vue {
       }
 
       this.selectedBean = await this.getBeanById(this.beanId);
-      await this.loadPreviousBrew();
+
+      if (this.$route.query.brewId !== '' && this.$route.query.action === 'copy') {
+        this.showLoadPreviousBrew = false;
+        this.previousBrew = await this.getBrewById(this.$route.query.brewId as string);
+        this.populateSetupFromPreviousBrew();
+      } else {
+        await this.loadPreviousBrew();
+      }
     }
 }
 </script>
