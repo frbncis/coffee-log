@@ -119,16 +119,14 @@
               <template v-slot:view-item>
                 <v-divider />
 
-                <v-list-item>
-                  <v-list-item-title>
-                    {{ formatDateTime(brew.brewDateTime) }}
-                  </v-list-item-title>
-                </v-list-item>
-
                 <v-list-item
                   @click="() => goToCreateBrew(bean.id, brew.id)"
                 >
-                  <v-list-item-content>
+                  <v-col>
+                  <v-list-item-title>
+                    {{ formatDateTime(brew.brewDateTime) }}
+                  </v-list-item-title>
+
                     <v-list-item
                       class="px-0 mx-0 brew-parameters-row"
                     >
@@ -187,11 +185,7 @@
                       </v-subheader>
                     </v-list-item>
 
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-subheader class="mt-0 pt-0 ml-0 pl-0">
+                  <v-list-item class="mt-0 pt-0 ml-0 pl-0 pb-0 mb-0">
                     <span class="grey--text text--lighten-2 caption mr-2">
                       ({{ brew.tasting.tastiness.quantity }})
                     </span>
@@ -203,7 +197,8 @@
                       dense
                       readonly
                     />
-                  </v-subheader>
+                  </v-list-item>
+                  </v-col>
                 </v-list-item>
               </template>
             </swipeable-list-item>
