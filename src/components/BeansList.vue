@@ -12,6 +12,7 @@
           >
             <v-img
               :src="bean.imageUrl"
+              aspect-ratio="1"
             >
               <template v-slot:placeholder>
                 <v-row

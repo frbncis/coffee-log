@@ -20,6 +20,7 @@
               <v-img
                 :src="bean.imageUrl"
                 class="align-end"
+                aspect-ratio="1"
               >
                 <template v-slot:placeholder>
                   <v-row

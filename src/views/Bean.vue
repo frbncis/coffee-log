@@ -14,6 +14,7 @@
           <v-img
             :src="bean.imageUrl"
             contain
+            aspect-ratio="1"
           />
         </v-skeleton-loader>
 
