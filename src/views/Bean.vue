@@ -279,7 +279,7 @@ export default class BeanView extends Vue {
   setTopNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
 
   goToCreateBrew(beanId: string, targetBrew: { brewId: string; action: string }) {
-    this.$router.push({ name: 'CreateBrew', query: { beanId, brewId: targetBrew.brewId, action: targetBrew.action } });
+    this.$router.push({ name: 'CreateBrew', query: { beanId, brewId: targetBrew?.brewId, action: targetBrew?.action } });
   }
 
   goToEditBean(beanId: string) {
