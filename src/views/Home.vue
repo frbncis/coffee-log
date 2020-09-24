@@ -97,7 +97,8 @@ export default class Home extends Vue {
         .slice(0, 4)
         .map((id) => this.beans[id]);
 
-      return topThreeRecentBeans;
+      // Filter out null/undefined beans.
+      return topThreeRecentBeans.filter((bean) => bean);
     }
 
     return [];

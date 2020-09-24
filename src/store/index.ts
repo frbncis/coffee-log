@@ -154,7 +154,10 @@ export default new Vuex.Store<State>({
       if (lastVisible) {
         query.startAfter(lastVisible);
       }
-      const beanQueryResult = await query.limit(20).get();
+
+      // TODO: Add paging since I apparently drink enough
+      // coffee for it to matter.
+      const beanQueryResult = await query.limit(50).get();
 
       const beans: {[beanId: string]: Bean} = {};
 
