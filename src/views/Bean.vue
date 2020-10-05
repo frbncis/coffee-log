@@ -43,6 +43,13 @@
             >
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
+
+            <v-btn
+              icon
+              @click="() => onBeanLikeToggle()"
+            >
+              <v-icon>{{ isBeanLiked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+            </v-btn>
           </v-list-item>
         </v-skeleton-loader>
 
@@ -249,6 +256,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Action, Mutation } from 'vuex-class';
 import Bean from '@/models/beans';
+import BeanUserMetadata from '@/models/beanUserMetadata';
 import Brew from '@/models/brew';
 import formatTime from '@/utils/timeUtils';
 import SwipeableListItem from '../components/SwipeableListItem.vue';
@@ -263,6 +271,8 @@ import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottom
 export default class BeanView extends Vue {
   bean = new Bean();
 
+  beanUserMetadata = new BeanUserMetadata('', '');
+
   brews = {};
 
   tab = 'bean';
@@ -274,6 +284,12 @@ export default class BeanView extends Vue {
 
   @Action
   getBrewsByBeanId!: (beanId: string) => Promise<{[brewId: string]: Brew}>;
+
+  @Action
+  getBeanUserMetadata!: (beanId: string) => Promise<BeanUserMetadata>;
+
+  @Action
+  createOrUpdateBeanUserMetadata!: (beanUserMetadata: BeanUserMetadata) => Promise<string>;
 
   @Mutation('SET_TOP_NAVIGATION')
   setTopNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
@@ -315,6 +331,10 @@ export default class BeanView extends Vue {
     return formatTime(timestamp, false);
   }
 
+  get isBeanLiked() {
+    return this.beanUserMetadata?.isLiked;
+  }
+
   get loading() {
     return this.bean.name === '';
   }
@@ -352,6 +372,12 @@ export default class BeanView extends Vue {
     }
 
     this.brews = await this.getBrewsByBeanId(beanId);
+    this.beanUserMetadata = await this.getBeanUserMetadata(beanId);
+  }
+
+  async onBeanLikeToggle() {
+    this.beanUserMetadata.isLiked = !this.beanUserMetadata.isLiked;
+    this.beanUserMetadata.id = await this.createOrUpdateBeanUserMetadata(this.beanUserMetadata);
   }
 }
 </script>

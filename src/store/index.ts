@@ -1,8 +1,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import Bean from '@/models/beans';
+import BeanUserMetadata from '@/models/beanUserMetadata';
 import Brew from '@/models/brew';
-import { beansCollection, brewsCollection, usersCollection } from '@/services/firebase';
+import {
+  beansCollection, brewsCollection, usersCollection, beanUserMetadataCollection,
+} from '@/services/firebase';
 import BottomNavigatorButtonViewModel from '@/components/bottomNavigator/bottomNavigatorButtonViewModel';
 import firebase from 'firebase';
 
@@ -284,6 +287,37 @@ export default new Vuex.Store<State>({
       }
 
       return bean;
+    },
+    async getBeanUserMetadata(context, beanId) {
+      const userId = context.state.user.metadata.id;
+
+      const beanMetadataDocument = await beanUserMetadataCollection
+        .where('userId', '==', userId)
+        .where('beanId', '==', beanId)
+        .limit(1)
+        .get();
+
+      return beanMetadataDocument.size === 1
+        ? beanMetadataDocument.docs[0].data() as BeanUserMetadata
+        : new BeanUserMetadata(beanId, userId);
+    },
+    async createOrUpdateBeanUserMetadata(context, beanUserMetadata: BeanUserMetadata) {
+      let documentId;
+
+      if (beanUserMetadata.id) {
+        beanUserMetadataCollection
+          .doc(beanUserMetadata.id)
+          .update(JSON.parse(JSON.stringify(beanUserMetadata)));
+
+        documentId = beanUserMetadata.id;
+      } else {
+        const document = await beanUserMetadataCollection
+          .add(JSON.parse(JSON.stringify(beanUserMetadata)));
+
+        documentId = document.id;
+      }
+
+      return documentId;
     },
     async getMostRecentBrewByBeanId(context, beanId) {
       const recentBrewDocument = await brewsCollection
