@@ -79,5 +79,9 @@ export default class Beans extends Vue {
   goToBeanDetails(beanId: string) {
     this.$router.push({ name: 'Bean', params: { beanId } });
   }
+
+  async onBottomReached() {
+    await this.getBeans();
+  }
 }
 </script>
