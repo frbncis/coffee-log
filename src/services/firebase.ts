@@ -25,6 +25,7 @@ const storage = firebase.storage();
 const beansCollection = db.collection('beans');
 const brewsCollection = db.collection('brews');
 const usersCollection = db.collection('users');
+const beanUserMetadataCollection = db.collection('beanUserMetadata');
 
 export {
   auth,
@@ -32,6 +33,7 @@ export {
   perf,
   storage,
   beansCollection,
+  beanUserMetadataCollection,
   brewsCollection,
   usersCollection,
 };
