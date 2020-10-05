@@ -6,6 +6,10 @@ import { beansCollection, brewsCollection, usersCollection } from '@/services/fi
 import BottomNavigatorButtonViewModel from '@/components/bottomNavigator/bottomNavigatorButtonViewModel';
 import firebase from 'firebase';
 
+// TODO: Move this into the state store? This is good enough for now though.
+let lastVisible:
+firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData> | null = null;
+
 Vue.use(Vuex);
 
 interface UserMetadata {
@@ -148,16 +152,19 @@ export default new Vuex.Store<State>({
     fetchBrews({ commit }, brews) {
       commit('SET_BREWS', brews);
     },
-    async getBeans(context, lastVisible = null) {
+    async getBeans(context) {
       const query = beansCollection;
+      let startAfterBeanName = '';
 
       if (lastVisible) {
-        query.startAfter(lastVisible);
+        startAfterBeanName = (lastVisible.data() as Bean).name;
       }
 
-      // TODO: Add paging since I apparently drink enough
-      // coffee for it to matter.
-      const beanQueryResult = await query.limit(50).get();
+      const beanQueryResult = await query
+        .orderBy('name')
+        .limit(10)
+        .startAfter(startAfterBeanName)
+        .get();
 
       const beans: {[beanId: string]: Bean} = {};
 
@@ -167,6 +174,8 @@ export default new Vuex.Store<State>({
 
         beans[bean.id] = bean;
       });
+
+      [lastVisible] = beanQueryResult.docs.slice(-1);
 
       return context.commit('ADD_BEANS', beans);
     },

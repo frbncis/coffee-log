@@ -23,7 +23,13 @@
           class="mt-5"
           @click="() => this.$router.push({ name: 'CreateBeans' })"
         >
-          <v-icon disabled left>mdi-plus</v-icon>
+          <v-icon
+            disabled
+            left
+            v-intersect="onBottomReached"
+          >
+            mdi-plus
+          </v-icon>
           Add Bean
         </v-btn>
       </v-row>
@@ -72,6 +78,10 @@ export default class Beans extends Vue {
 
   goToBeanDetails(beanId: string) {
     this.$router.push({ name: 'Bean', params: { beanId } });
+  }
+
+  async onBottomReached() {
+    await this.getBeans();
   }
 }
 </script>
