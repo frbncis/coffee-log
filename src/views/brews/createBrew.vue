@@ -193,6 +193,10 @@
               Previous Brew Time: {{ formatBrewTime(previousBrew.brewTimeMilliseconds) }}
             </v-card-subtitle>
 
+            <h4 class="pb-5 pt-5">
+              {{ brewTimingDescription }}
+            </h4>
+
             <v-card-actions>
               <v-row>
                 <v-btn
@@ -661,6 +665,32 @@ export default class CreateBrew extends Vue {
       if (!this.brew.id) {
         this.brew.id = id;
       }
+    }
+
+    // TODO: This should be refactored out to allow swapping
+    // out different recipes. Right now this is James Hoffmann's
+    // V60 recipe; but Tetsu Kasuya's 4-6 V60 could be valid (due
+    // to timing complexity).
+    get brewTimingDescription() {
+      const BLOOM_TIME_MS = 45000;
+      const BREW_60_PERCENT_MARK_MS = 75000;
+      const BREW_100_PERCENT_MARK_MS = 105000;
+
+      let brewTimingDescription = '';
+
+      if (this.brew.brewMethod === 'V60') {
+        if (this.brew.brewTimeMilliseconds <= BLOOM_TIME_MS) {
+          brewTimingDescription = `Bloom with ${this.brew.grindWeight * 2} mL until ${this.formatBrewTime(BLOOM_TIME_MS)}`;
+        } else if (this.brew.brewTimeMilliseconds <= BREW_60_PERCENT_MARK_MS) {
+          brewTimingDescription = `${this.brew.waterVolume * 0.6} mL @ ${this.formatBrewTime(BREW_60_PERCENT_MARK_MS)}`;
+        } else if (this.brew.brewTimeMilliseconds <= BREW_100_PERCENT_MARK_MS) {
+          brewTimingDescription = `${this.brew.waterVolume} mL @ ${this.formatBrewTime(BREW_100_PERCENT_MARK_MS)}`;
+        } else {
+          brewTimingDescription = 'Stir, swirl, wait for drawdown. Enjoy!';
+        }
+      }
+
+      return brewTimingDescription;
     }
 
     @Action('saveBrew')
