@@ -290,6 +290,7 @@ export default new Vuex.Store<State>({
     },
     async getBeanUserMetadata(context, beanId) {
       const userId = context.state.user.metadata.id;
+      let metadata;
 
       const beanMetadataDocument = await beanUserMetadataCollection
         .where('userId', '==', userId)
@@ -297,9 +298,15 @@ export default new Vuex.Store<State>({
         .limit(1)
         .get();
 
-      return beanMetadataDocument.size === 1
-        ? beanMetadataDocument.docs[0].data() as BeanUserMetadata
-        : new BeanUserMetadata(beanId, userId);
+      if (beanMetadataDocument.size === 1) {
+        const result = beanMetadataDocument.docs[0];
+        metadata = result.data() as BeanUserMetadata;
+        metadata.id = result.id;
+      } else {
+        metadata = new BeanUserMetadata(beanId, userId);
+      }
+
+      return metadata;
     },
     async createOrUpdateBeanUserMetadata(context, beanUserMetadata: BeanUserMetadata) {
       let documentId;
