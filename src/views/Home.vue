@@ -1,43 +1,51 @@
 <template>
   <div class="pt-5 pb-5 pl-3 pr-3">
-    <h1 class="title">Recently Brewed</h1>
-      <v-row dense>
-        <v-col
-          v-for="bean in recentBeans"
-          :key="bean.id"
-          class="pt-5"
-          cols="6"
+    <div
+      v-if="userHasRecentBeans"
+    >
+      <h1 class="title">Recently Brewed</h1>
+        <v-row
+          dense
         >
-          <v-skeleton-loader
-            class="mx-auto"
-            max-width="300"
-            type="card"
-            :loading="loading"
+          <v-col
+            v-for="bean in recentBeans"
+            :key="bean.id"
+            class="pt-5"
+            cols="6"
           >
-            <v-card
-              @click.stop="() => goToBeanDetails(bean.id)"
+            <v-skeleton-loader
+              class="mx-auto"
+              max-width="300"
+              type="card"
+              :loading="loading"
             >
-              <v-img
-                :src="bean.imageUrl"
-                class="align-end"
-                aspect-ratio="1"
+              <v-card
+                @click.stop="() => goToBeanDetails(bean.id)"
               >
-                <template v-slot:placeholder>
-                  <v-row
-                    class="fill-height ma-0"
-                    align="center"
-                    justify="center"
-                  >
-                    <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-                  </v-row>
-                </template>
-              </v-img>
+                <v-img
+                  :src="bean.imageUrl"
+                  class="align-end"
+                  aspect-ratio="1"
+                >
+                  <template v-slot:placeholder>
+                    <v-row
+                      class="fill-height ma-0"
+                      align="center"
+                      justify="center"
+                    >
+                      <v-progress-circular
+                        indeterminate
+                        color="grey lighten-5" />
+                    </v-row>
+                  </template>
+                </v-img>
 
-              <v-card-title class="subtitle-2" v-text="bean.name" />
-            </v-card>
-          </v-skeleton-loader>
-        </v-col>
-      </v-row>
+                <v-card-title class="subtitle-2" v-text="bean.name" />
+              </v-card>
+            </v-skeleton-loader>
+          </v-col>
+        </v-row>
+      </div>
   </div>
 </template>
 
@@ -59,11 +67,10 @@ export default class Home extends Vue {
   @State
   user!: User;
 
-  @State
-  beans!: {[beanId: string]: Bean}
+  recentBeans: Bean[] = [];
 
   @Action
-  getBeans!: () => Promise<void>
+  getBeanById!: (beanId: string) => Promise<Bean>
 
   loading = true;
 
@@ -73,11 +80,23 @@ export default class Home extends Vue {
   @Mutation('SET_TITLE')
   setTitle!: (appBarTitle: string) => void;
 
+  private beansHasLoadedOnce = false;
+
+  get userHasRecentBeans() {
+    if (this.user.data.recentBeans.length > 0) {
+      if (!this.beansHasLoadedOnce) {
+        this.beansHasLoadedOnce = true;
+        this.updateRecentBeansAsync();
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
   async created() {
     this.loading = true;
-
-    await this.getBeans();
-
     this.loading = false;
   }
 
@@ -86,22 +105,20 @@ export default class Home extends Vue {
     this.setTitle('Coffee Log');
   }
 
-  get recentBeans() {
-    if (this.user.data.recentBeans) {
+  async updateRecentBeansAsync() {
+    if (this.user.data.recentBeans?.length > 0) {
       // When beans are brewed they are appended.
       // Most recent bean is at the bottom.
       const buffer = new Array<string>(...this.user.data.recentBeans);
 
       const topThreeRecentBeans = buffer
         .reverse()
-        .slice(0, 4)
-        .map((id) => this.beans[id]);
+        .slice(0, 4);
 
-      // Filter out null/undefined beans.
-      return topThreeRecentBeans.filter((bean) => bean);
+      const b1 = topThreeRecentBeans.map((id) => this.getBeanById(id));
+
+      this.recentBeans = await Promise.all(b1);
     }
-
-    return [];
   }
 
   goToBeanDetails(beanId: string) {
