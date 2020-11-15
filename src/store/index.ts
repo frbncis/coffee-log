@@ -120,6 +120,22 @@ export default new Vuex.Store<State>({
     },
   },
   actions: {
+    async quickBrew(context, router: any) {
+      const recentBeanId = context.state.user.data.recentBeans.slice(-1)[0];
+      const mostRecentBrewForBean = await context.dispatch(
+        'getMostRecentBrewByBeanId',
+        recentBeanId,
+      );
+
+      router.push({
+        name: 'CreateBrew',
+        query: {
+          beanId: recentBeanId,
+          brewId: mostRecentBrewForBean.id,
+          action: 'copy',
+        },
+      });
+    },
     async fetchUser({ commit, dispatch }, user) {
       commit('SET_LOGGED_IN', user !== null);
 
@@ -284,6 +300,10 @@ export default new Vuex.Store<State>({
         }
       } else {
         bean = context.state.beans[beanId];
+      }
+
+      if (bean) {
+        bean.id = beanId;
       }
 
       return bean;
