@@ -24,41 +24,6 @@
 
     <v-content>
       <router-view />
-
-      <!-- <v-speed-dial
-        v-model="fab"
-        bottom
-        right
-        fixed
-      >
-        <template v-slot:activator>
-          <v-btn
-            color="blue darken-2"
-            dark
-            fab
-          >
-            <v-icon v-if="fab">mdi-close</v-icon>
-            <v-icon v-else>mdi-plus</v-icon>
-          </v-btn>
-        </template>
-        <v-btn
-          fab
-          dark
-          small
-          color="green"
-        >
-          <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-        <v-btn
-          fab
-          dark
-          small
-          color="indigo"
-          @click="() => this.$router.push({ name: 'CreateBeans' })"
-        >
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-      </v-speed-dial> -->
     </v-content>
 
     <v-snackbar
@@ -73,12 +38,52 @@
         Refresh
       </v-btn>
     </v-snackbar>
+
+    <v-bottom-sheet
+      v-model="showActionsSheet"
+    >
+      <v-sheet
+        class="text-center"
+        height="200px"
+      >
+          <h3
+            class="py-3 subtitle-1"
+          >
+            Quick Actions
+          </h3>
+        <v-row>
+          <v-col
+            cols="12"
+            sm="4"
+          >
+            <div class="py-3">
+              <v-btn
+                outlined
+                fab
+                @click="handleQuickBrewClick"
+              >
+                <v-icon>
+                  mdi-coffee
+                </v-icon>
+              </v-btn>
+            </div>
+              <h4
+                class="caption"
+              >
+                Quick Brew
+              </h4>
+          </v-col>
+        </v-row>
+      </v-sheet>
+    </v-bottom-sheet>
     <bottom-navigator />
   </v-app>
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import {
+  mapState, mapGetters, mapMutations, mapActions,
+} from 'vuex';
 import AppBarTabs from '@/components/AppBarTabs.vue';
 import BottomNavigator from './BottomNavigator.vue';
 import BottomNavigatorButtonViewModel from './bottomNavigator/bottomNavigatorButtonViewModel';
@@ -102,14 +107,15 @@ export default {
     source: String,
   },
   data: () => ({
-    fab: false,
     bottomNav: 'recent',
     snackbar: true,
     showTabBar: true,
+    showActionsSheet: false,
   }),
   created() {
     this.setBottomNavigation([
       new BottomNavigatorButtonViewModel('Home', 'home', 'mdi-home', () => this.$router.push({ name: 'Home' })),
+      new BottomNavigatorButtonViewModel('', '', 'mdi-plus-circle-outline', () => { this.showActionsSheet = !this.showActionsSheet; }),
       new BottomNavigatorButtonViewModel('Beans', 'beans', 'mdi-seed', () => this.$router.push({ name: 'Beans' })),
     ]);
   },
@@ -117,6 +123,9 @@ export default {
     ...mapMutations({
       setBottomNavigation: 'SET_BOTTOM_NAVIGATION',
     }),
+    ...mapActions([
+      'quickBrew',
+    ]),
     goHistoryBack() {
       this.$router.go(-1);
     },
@@ -125,6 +134,10 @@ export default {
     },
     refreshWindow() {
       window.location.reload();
+    },
+    handleQuickBrewClick() {
+      this.showActionsSheet = false;
+      this.quickBrew(this.$router);
     },
   },
 };
