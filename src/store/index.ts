@@ -39,6 +39,7 @@ export interface State {
   bottomNavigator: BottomNavigatorButtonViewModel[];
   topNavigator: BottomNavigatorButtonViewModel[];
   appUpdated: boolean;
+  beansResultsExhausted: boolean;
 }
 
 export default new Vuex.Store<State>({
@@ -60,6 +61,7 @@ export default new Vuex.Store<State>({
     bottomNavigator: [],
     topNavigator: [],
     appUpdated: false,
+    beansResultsExhausted: false,
   },
   getters: {
     user(state) {
@@ -117,6 +119,9 @@ export default new Vuex.Store<State>({
     },
     NOTIFY_APPLICATION_UPDATED(state, isUpdated) {
       state.appUpdated = isUpdated;
+    },
+    SET_BEANS_RESULTS_EXHAUSTED(state, isExhausted) {
+      state.beansResultsExhausted = isExhausted;
     },
   },
   actions: {
@@ -185,18 +190,23 @@ export default new Vuex.Store<State>({
         .startAfter(startAfterBeanName)
         .get();
 
-      const beans: {[beanId: string]: Bean} = {};
+      if (!beanQueryResult.empty) {
+        const beans: {[beanId: string]: Bean} = {};
 
-      beanQueryResult.docs.forEach((beanDocument) => {
-        const bean = beanDocument.data() as Bean;
-        bean.id = beanDocument.id;
+        beanQueryResult.docs.forEach((beanDocument) => {
+          const bean = beanDocument.data() as Bean;
+          bean.id = beanDocument.id;
+          beans[bean.id] = bean;
+        });
 
-        beans[bean.id] = bean;
-      });
+        [lastVisible] = beanQueryResult.docs.slice(-1);
 
-      [lastVisible] = beanQueryResult.docs.slice(-1);
+        context.commit('SET_BEANS_RESULTS_EXHAUSTED', false);
 
-      return context.commit('ADD_BEANS', beans);
+        return context.commit('ADD_BEANS', beans);
+      }
+
+      return context.commit('SET_BEANS_RESULTS_EXHAUSTED', true);
     },
     async getBrewById(context, brewId) {
       let brew: Brew | null = null;

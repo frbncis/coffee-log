@@ -15,23 +15,16 @@
         @bean-clicked="goToBeanDetails"
       />
 
-      <v-row dense>
-        <v-btn
-          block
-          outlined
-          text
-          class="mt-5"
-          @click="() => this.$router.push({ name: 'CreateBeans' })"
-        >
-          <v-icon
-            disabled
-            left
-            v-intersect="onBottomReached"
-          >
-            mdi-plus
-          </v-icon>
-          Add Bean
-        </v-btn>
+      <!-- Only show this element if we have more results to load.  -->
+      <v-row
+        v-if="!beansResultsExhausted"
+        justify="center"
+        class="pa-3"
+        v-intersect="onBottomReached"
+      >
+        <v-progress-circular
+          indeterminate
+        />
       </v-row>
     </v-skeleton-loader>
   </v-container>
@@ -54,6 +47,9 @@ export default class Beans extends Vue {
   @State
   beans!: {[beanId: string]: Bean}
 
+  @State
+  beansResultsExhausted!: boolean;
+
   @Action
   getBeans!: () => Promise<void>
 
@@ -62,6 +58,8 @@ export default class Beans extends Vue {
 
   @Mutation('SET_TOP_NAVIGATION')
   setTopNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
+
+  beansLoadingInProgress = false;
 
   mounted() {
     this.setTitle('Beans');
@@ -81,7 +79,11 @@ export default class Beans extends Vue {
   }
 
   async onBottomReached() {
-    await this.getBeans();
+    if (!this.beansLoadingInProgress) {
+      this.beansLoadingInProgress = true;
+      await this.getBeans();
+      this.beansLoadingInProgress = false;
+    }
   }
 }
 </script>
