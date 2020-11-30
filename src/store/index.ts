@@ -121,7 +121,7 @@ export default new Vuex.Store<State>({
       state.appUpdated = isUpdated;
     },
     SET_BEANS_RESULTS_EXHAUSTED(state, isExhausted) {
-      state.beansResultsExhaused = isExhausted;
+      state.beansResultsExhausted = isExhausted;
     },
   },
   actions: {
@@ -186,7 +186,7 @@ export default new Vuex.Store<State>({
 
       const beanQueryResult = await query
         .orderBy('name')
-        .limit(5)
+        .limit(10)
         .startAfter(startAfterBeanName)
         .get();
 
@@ -201,7 +201,7 @@ export default new Vuex.Store<State>({
 
         [lastVisible] = beanQueryResult.docs.slice(-1);
 
-        context.commit('SET_BEANS_RESULTS_EXHAUSTED', true);
+        context.commit('SET_BEANS_RESULTS_EXHAUSTED', false);
 
         return context.commit('ADD_BEANS', beans);
       }

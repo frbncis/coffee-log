@@ -39,43 +39,12 @@
       </v-btn>
     </v-snackbar>
 
-    <v-bottom-sheet
-      v-model="showActionsSheet"
-    >
-      <v-sheet
-        class="text-center"
-        height="200px"
-      >
-          <h3
-            class="py-3 subtitle-1"
-          >
-            Quick Actions
-          </h3>
-        <v-row>
-          <v-col
-            cols="12"
-            sm="4"
-          >
-            <div class="py-3">
-              <v-btn
-                outlined
-                fab
-                @click="handleQuickBrewClick"
-              >
-                <v-icon>
-                  mdi-coffee
-                </v-icon>
-              </v-btn>
-            </div>
-              <h4
-                class="caption"
-              >
-                Quick Brew
-              </h4>
-          </v-col>
-        </v-row>
-      </v-sheet>
-    </v-bottom-sheet>
+    <quick-actions
+      :buttons="quickActionButtons"
+      :shouldRender="showActionsSheet"
+      @onDismissed="() => this.showActionsSheet = false"
+    />
+
     <bottom-navigator />
   </v-app>
 </template>
@@ -87,11 +56,13 @@ import {
 import AppBarTabs from '@/components/AppBarTabs.vue';
 import BottomNavigator from './BottomNavigator.vue';
 import BottomNavigatorButtonViewModel from './bottomNavigator/bottomNavigatorButtonViewModel';
+import QuickActions, { QuickActionButtonViewModel } from './quickActions/QuickActions.vue';
 
 export default {
   components: {
     'app-bar-tabs': AppBarTabs,
     'bottom-navigator': BottomNavigator,
+    'quick-actions': QuickActions,
   },
   computed: {
     ...mapGetters([
@@ -111,13 +82,19 @@ export default {
     snackbar: true,
     showTabBar: true,
     showActionsSheet: false,
+    quickActionButtons: [],
   }),
   created() {
     this.setBottomNavigation([
       new BottomNavigatorButtonViewModel('Home', 'home', 'mdi-home', () => this.$router.push({ name: 'Home' })),
-      new BottomNavigatorButtonViewModel('', '', 'mdi-plus-circle-outline', () => { this.showActionsSheet = !this.showActionsSheet; }),
+      new BottomNavigatorButtonViewModel('', '', 'mdi-plus-circle-outline', () => { this.showActionsSheet = true; }),
       new BottomNavigatorButtonViewModel('Beans', 'beans', 'mdi-seed', () => this.$router.push({ name: 'Beans' })),
     ]);
+
+    this.quickActionButtons = [
+      new QuickActionButtonViewModel('Quick Brew', 'mdi-coffee', () => this.handleQuickBrewClick()),
+      new QuickActionButtonViewModel('Add Bean', 'mdi-seed', () => this.$router.push({ name: 'CreateBeans' })),
+    ];
   },
   methods: {
     ...mapMutations({
@@ -136,7 +113,6 @@ export default {
       window.location.reload();
     },
     handleQuickBrewClick() {
-      this.showActionsSheet = false;
       this.quickBrew(this.$router);
     },
   },
