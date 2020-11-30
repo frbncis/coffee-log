@@ -150,7 +150,15 @@
             <h1 class="display-3"
               @click.stop="showEditTimeDialog"
             >
-              {{ timeElapsedFormatted }}
+              <v-progress-circular
+                id="brewStepCircularProgress"
+                rotate="-90"
+                size="180"
+                :value="currentBrewRecipeStepTimeRemainingPercentage"
+                color="cyan"
+              >
+                {{ timeElapsedFormatted }}
+              </v-progress-circular>
 
               <v-dialog
                 v-model="editTimeDialog"
@@ -354,6 +362,7 @@ import NoSleep from 'nosleep.js';
 import formatTime from '@/utils/timeUtils';
 import BottomNavigatorButtonViewModel from '../../components/bottomNavigator/bottomNavigatorButtonViewModel';
 import Improvement, { Correction } from '../../models/improvement';
+import BrewRecipeStep from './brewRecipeStep';
 
 @Component({
   components: {
@@ -667,30 +676,62 @@ export default class CreateBrew extends Vue {
       }
     }
 
+    get brewTimingDescription(): string {
+      return this.currentBrewRecipeStep.text;
+    }
+
+    get currentBrewRecipeStepTimeRemainingPercentage(): number {
+      if (this.currentBrewRecipeStep.isFinalStep) {
+        return 0;
+      }
+
+      // eslint-disable-next-line no-mixed-operators
+      // eslint-disable-next-line max-len
+      let a = (this.brew.brewTimeMilliseconds - this.currentBrewRecipeStep.startTimeMilliseconds) / (this.currentBrewRecipeStep.endTimeMilliseconds - this.currentBrewRecipeStep.startTimeMilliseconds);
+      a *= 100;
+
+      // console.log(this.currentBrewRecipeStep);
+      // console.log(a);
+      return 100 - a;
+    }
+
     // TODO: This should be refactored out to allow swapping
     // out different recipes. Right now this is James Hoffmann's
     // V60 recipe; but Tetsu Kasuya's 4-6 V60 could be valid (due
     // to timing complexity).
-    get brewTimingDescription() {
+    get currentBrewRecipeStep(): BrewRecipeStep {
       const BLOOM_TIME_MS = 45000;
       const BREW_60_PERCENT_MARK_MS = 75000;
       const BREW_100_PERCENT_MARK_MS = 105000;
 
       let brewTimingDescription = '';
+      const brewRecipeStep = new BrewRecipeStep();
 
       if (this.brew.brewMethod === 'V60') {
         if (this.brew.brewTimeMilliseconds <= BLOOM_TIME_MS) {
           brewTimingDescription = `Bloom with ${this.brew.grindWeight * 2} mL until ${this.formatBrewTime(BLOOM_TIME_MS)}`;
+          brewRecipeStep.targetWaterVolume = this.brew.grindWeight * 2;
+          brewRecipeStep.startTimeMilliseconds = 0;
+          brewRecipeStep.endTimeMilliseconds = BLOOM_TIME_MS;
         } else if (this.brew.brewTimeMilliseconds <= BREW_60_PERCENT_MARK_MS) {
           brewTimingDescription = `${this.brew.waterVolume * 0.6} mL @ ${this.formatBrewTime(BREW_60_PERCENT_MARK_MS)}`;
+          brewRecipeStep.targetWaterVolume = this.brew.waterVolume * 0.6;
+          brewRecipeStep.startTimeMilliseconds = BLOOM_TIME_MS;
+          brewRecipeStep.endTimeMilliseconds = BREW_60_PERCENT_MARK_MS;
         } else if (this.brew.brewTimeMilliseconds <= BREW_100_PERCENT_MARK_MS) {
           brewTimingDescription = `${this.brew.waterVolume} mL @ ${this.formatBrewTime(BREW_100_PERCENT_MARK_MS)}`;
+          brewRecipeStep.targetWaterVolume = this.brew.waterVolume;
+          brewRecipeStep.startTimeMilliseconds = BREW_60_PERCENT_MARK_MS;
+          brewRecipeStep.endTimeMilliseconds = BREW_100_PERCENT_MARK_MS;
         } else {
           brewTimingDescription = 'Stir, swirl, wait for drawdown. Enjoy!';
+          brewRecipeStep.isFinalStep = true;
         }
       }
 
-      return brewTimingDescription;
+      brewRecipeStep.text = brewTimingDescription;
+
+      return brewRecipeStep;
     }
 
     @Action('saveBrew')
@@ -740,3 +781,10 @@ export default class CreateBrew extends Vue {
     }
 }
 </script>
+
+<style>
+#brewStepCircularProgress > svg > circle.v-progress-circular__overlay {
+  -webkit-transition: none !important;
+  transition: none !important;
+}
+</style>
