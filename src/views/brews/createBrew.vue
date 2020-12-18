@@ -763,7 +763,7 @@ export default class CreateBrew extends Vue {
         }
       }
 
-      if (this.brew.completed) {
+      if (this.$route.query.brewId && this.$route.query.action === 'edit') {
         this.setAppBarTitle('Edit Brew');
       } else {
         this.setAppBarTitle('Create Brew');
