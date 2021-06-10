@@ -37,6 +37,7 @@ export interface State {
   brews: {[brewId: string]: Brew};
   user: User;
   bottomNavigator: BottomNavigatorButtonViewModel[];
+  bottomNavigatorDisplay: boolean;
   topNavigator: BottomNavigatorButtonViewModel[];
   appUpdated: boolean;
   beansResultsExhausted: boolean;
@@ -59,6 +60,7 @@ export default new Vuex.Store<State>({
       },
     },
     bottomNavigator: [],
+    bottomNavigatorDisplay: true,
     topNavigator: [],
     appUpdated: false,
     beansResultsExhausted: false,
@@ -110,6 +112,9 @@ export default new Vuex.Store<State>({
     },
     SET_BACK_NAV_ICON(state, showBack) {
       state.showBack = showBack;
+    },
+    SET_BOTTOM_NAVIGATION_DISPLAY(state, shouldDisplay) {
+      state.bottomNavigatorDisplay = shouldDisplay;
     },
     SET_BOTTOM_NAVIGATION(state, bottomNavigatorButtonViewModels) {
       state.bottomNavigator = bottomNavigatorButtonViewModels;
