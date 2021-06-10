@@ -700,14 +700,14 @@ export default class CreateBrew extends Vue {
     // V60 recipe; but Tetsu Kasuya's 4-6 V60 could be valid (due
     // to timing complexity).
     get currentBrewRecipeStep(): BrewRecipeStep {
-      const BLOOM_TIME_MS = 45000;
-      const BREW_60_PERCENT_MARK_MS = 75000;
-      const BREW_100_PERCENT_MARK_MS = 105000;
-
       let brewTimingDescription = '';
       const brewRecipeStep = new BrewRecipeStep();
 
       if (this.brew.brewMethod === 'V60') {
+        const BLOOM_TIME_MS = 45000;
+        const BREW_60_PERCENT_MARK_MS = 75000;
+        const BREW_100_PERCENT_MARK_MS = 105000;
+
         if (this.brew.brewTimeMilliseconds <= BLOOM_TIME_MS) {
           brewTimingDescription = `Bloom with ${this.brew.grindWeight * 2} mL until ${this.formatBrewTime(BLOOM_TIME_MS)}`;
           brewRecipeStep.targetWaterVolume = this.brew.grindWeight * 2;
@@ -725,6 +725,37 @@ export default class CreateBrew extends Vue {
           brewRecipeStep.endTimeMilliseconds = BREW_100_PERCENT_MARK_MS;
         } else {
           brewTimingDescription = 'Stir, swirl, wait for drawdown. Enjoy!';
+          brewRecipeStep.isFinalStep = true;
+        }
+      } else if (this.brew.brewMethod === 'Aeropress') {
+        // This is James Hoffmann's Aeropress recipe.
+        const BLOOM_FILL_TIME_MS = 10 * 1000;
+        const BREW_SHAKE_MARK_MS = 2 * 60 * 1000;
+        const BREW_BEGIN_PRESS_MARK_MS = 2.5 * 60 * 1000;
+        const BREW_END_PRESS_MARK_MS = 3 * 60 * 1000;
+
+        if (this.brew.brewTimeMilliseconds <= BLOOM_FILL_TIME_MS) {
+          brewTimingDescription = `Fill chamber with ${this.brew.waterVolume} mL of boiling water.`;
+          brewRecipeStep.targetWaterVolume = this.brew.waterVolume;
+          brewRecipeStep.startTimeMilliseconds = 0;
+          brewRecipeStep.endTimeMilliseconds = BLOOM_FILL_TIME_MS;
+        } else if (this.brew.brewTimeMilliseconds <= BREW_SHAKE_MARK_MS) {
+          brewTimingDescription = 'Insert piston and wait.';
+          brewRecipeStep.targetWaterVolume = this.brew.waterVolume;
+          brewRecipeStep.startTimeMilliseconds = BLOOM_FILL_TIME_MS;
+          brewRecipeStep.endTimeMilliseconds = BREW_SHAKE_MARK_MS;
+        } else if (this.brew.brewTimeMilliseconds <= BREW_BEGIN_PRESS_MARK_MS) {
+          brewTimingDescription = 'Gently swirl and let settle.';
+          brewRecipeStep.targetWaterVolume = this.brew.waterVolume;
+          brewRecipeStep.startTimeMilliseconds = BREW_SHAKE_MARK_MS;
+          brewRecipeStep.endTimeMilliseconds = BREW_BEGIN_PRESS_MARK_MS;
+        } else if (this.brew.brewTimeMilliseconds <= BREW_END_PRESS_MARK_MS) {
+          brewTimingDescription = 'Press gently all the way.';
+          brewRecipeStep.targetWaterVolume = this.brew.waterVolume;
+          brewRecipeStep.startTimeMilliseconds = BREW_BEGIN_PRESS_MARK_MS;
+          brewRecipeStep.endTimeMilliseconds = BREW_END_PRESS_MARK_MS;
+        } else {
+          brewTimingDescription = 'Enjoy!';
           brewRecipeStep.isFinalStep = true;
         }
       }
