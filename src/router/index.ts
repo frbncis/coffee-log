@@ -25,6 +25,7 @@ const routes = [
     component: () => import(/* webpackChunkName: "createBrew" */ '../views/brews/createBrew.vue'),
     meta: {
       showBackIcon: true,
+      bottomNavigationDisplay: false,
     },
   },
   {
@@ -66,6 +67,12 @@ router.beforeEach((to, from, next) => {
     store.commit('SET_BACK_NAV_ICON', true);
   } else {
     store.commit('SET_BACK_NAV_ICON', false);
+  }
+
+  if (to.matched.some((record) => record.meta.bottomNavigationDisplay)) {
+    store.commit('SET_BOTTOM_NAVIGATION_DISPLAY', true);
+  } else {
+    store.commit('SET_BOTTOM_NAVIGATION_DISPLAY', false);
   }
 
   next();

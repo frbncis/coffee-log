@@ -149,7 +149,7 @@
             class="px-5 pt-5"
           >
             <h1 class="display-3"
-              @click.stop="showEditTimeDialog"
+              @click.stop="onTimerClicked"
             >
               <v-progress-circular
                 id="brewStepCircularProgress"
@@ -234,6 +234,7 @@
                   class="mb-5"
                   block
                   color="secondary"
+                  :disabled="timerRunning"
                 >
                   Reset
                 </v-btn>
@@ -358,7 +359,7 @@ import {
 import Bean from '@/models/beans';
 import Brew from '@/models/brew';
 import SelectedBeanCard from '@/components/brews/selectedBeanCard.vue';
-import { Route } from 'vue-router';
+import { NavigationGuardNext, Route } from 'vue-router';
 import NoSleep from 'nosleep.js';
 import formatTime from '@/utils/timeUtils';
 import BottomNavigatorButtonViewModel from '../../components/bottomNavigator/bottomNavigatorButtonViewModel';
@@ -372,6 +373,17 @@ import BrewRecipeStep from './brewRecipeStep';
   data: () => ({
     brewStepField: 1,
   }),
+  beforeRouteUpdate(to: Route, from: Route, next: NavigationGuardNext<CreateBrew>) {
+    const isStepChange = Number(to.query.brewStep) !== this.brewStep;
+
+    const shouldBlockUpdate = isStepChange && this.timerRunning;
+
+    if (shouldBlockUpdate) {
+      next(false);
+    } else {
+      next();
+    }
+  },
 })
 export default class CreateBrew extends Vue {
     brewMethods = [
@@ -433,6 +445,9 @@ export default class CreateBrew extends Vue {
       }
     }
 
+    @Mutation('SET_BOTTOM_NAVIGATION_DISPLAY')
+    setBottomNavigationDisplay!: (shouldDisplay: boolean) => void;
+
     get brewStep() {
       return this.brewStepField;
     }
@@ -444,6 +459,12 @@ export default class CreateBrew extends Vue {
     // eslint-disable-next-line class-methods-use-this
     formatBrewTime(timestamp: number) {
       return formatTime(timestamp, false);
+    }
+
+    onTimerClicked() {
+      if (!this.timerRunning) {
+        this.showEditTimeDialog();
+      }
     }
 
     showEditTimeDialog() {
@@ -779,6 +800,7 @@ export default class CreateBrew extends Vue {
 
     async mounted() {
       this.setTopNavigation([]);
+      this.setBottomNavigationDisplay(false);
 
       if (this.$route.query.brewStep) {
         this.brewStepField = Number(this.$route.query.brewStep);
