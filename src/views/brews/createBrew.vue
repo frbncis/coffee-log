@@ -59,8 +59,9 @@
 
               <v-list-item three-line>
                 <v-list-item-content>
-                  <v-text-field
+                  <v-combobox
                     v-model="brew.brewMethod"
+                    :items="brewMethods"
                     outlined
                     label="Brew Method"
                   />
@@ -373,6 +374,14 @@ import BrewRecipeStep from './brewRecipeStep';
   }),
 })
 export default class CreateBrew extends Vue {
+    brewMethods = [
+      'Aeropress',
+      'Chemex',
+      'French Press',
+      'Cupping',
+      'V60',
+    ].sort();
+
     selectedBean: Bean = new Bean();
 
     brew: Brew = new Brew('');
