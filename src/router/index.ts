@@ -69,10 +69,10 @@ router.beforeEach((to, from, next) => {
     store.commit('SET_BACK_NAV_ICON', false);
   }
 
-  if (to.matched.some((record) => record.meta.bottomNavigationDisplay)) {
-    store.commit('SET_BOTTOM_NAVIGATION_DISPLAY', true);
-  } else {
+  if (to.matched.some((record) => record.meta.bottomNavigationDisplay === false)) {
     store.commit('SET_BOTTOM_NAVIGATION_DISPLAY', false);
+  } else {
+    store.commit('SET_BOTTOM_NAVIGATION_DISPLAY', true);
   }
 
   next();
