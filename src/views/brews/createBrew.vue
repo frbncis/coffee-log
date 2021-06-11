@@ -521,7 +521,15 @@ export default class CreateBrew extends Vue {
       this.timerIncrementTask = setInterval(this.incrementTimer, this.timerTickMilliseconds);
 
       if (setQueryParameter) {
-        this.$router.replace({ name: 'CreateBrew', query: { ...this.$route.query, timerStarted: Date.now().toString() } });
+        // If there is already a value on the timer then
+        // we need to offset the query parameter
+        let timerStarted = Date.now();
+
+        if (this.brew.brewTimeMilliseconds) {
+          timerStarted -= this.brew.brewTimeMilliseconds;
+        }
+
+        this.$router.replace({ name: 'CreateBrew', query: { ...this.$route.query, timerStarted: timerStarted.toString() } });
       }
 
       this.wakeLock.enable();
