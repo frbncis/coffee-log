@@ -94,6 +94,12 @@ export default {
     this.quickActionButtons = [
       new QuickActionButtonViewModel('Quick Brew', 'mdi-coffee', () => this.handleQuickBrewClick()),
       new QuickActionButtonViewModel('Add Bean', 'mdi-seed', () => this.$router.push({ name: 'CreateBeans' })),
+      new QuickActionButtonViewModel('Timer', 'mdi-timer', () => this.$router.push({
+        name: 'CreateBrew',
+        query: {
+          isAdHoc: true,
+        },
+      })),
     ];
   },
   methods: {

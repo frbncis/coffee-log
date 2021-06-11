@@ -25,6 +25,7 @@
       <v-stepper-items>
         <v-stepper-content step="1">
             <selected-bean-card
+              v-if="!isAdHoc"
               :selectedBean="selectedBean"
             />
 
@@ -244,7 +245,10 @@
         </v-stepper-content>
 
         <v-stepper-content step="3">
-          <selected-bean-card :selectedBean="selectedBean" />
+          <selected-bean-card
+            v-if="!isAdHoc"
+            :selectedBean="selectedBean"
+          />
 
           <v-card
             class="mx-auto mt-5"
@@ -421,6 +425,8 @@ export default class CreateBrew extends Vue {
     editTimeDialog = false;
 
     editTimeBrewTimeSeconds = 0;
+
+    isAdHoc = false;
 
     criterionIsExpandedState = {
     }
@@ -707,10 +713,12 @@ export default class CreateBrew extends Vue {
     }
 
     async saveBrew() {
-      const id = await this.saveBrewAction(this.brew);
+      if (!this.isAdHoc) {
+        const id = await this.saveBrewAction(this.brew);
 
-      if (!this.brew.id) {
-        this.brew.id = id;
+        if (!this.brew.id) {
+          this.brew.id = id;
+        }
       }
     }
 
@@ -812,6 +820,10 @@ export default class CreateBrew extends Vue {
 
       if (this.$route.query.brewStep) {
         this.brewStepField = Number(this.$route.query.brewStep);
+      }
+
+      if (this.$route.query.isAdHoc) {
+        this.isAdHoc = Boolean(this.$route.query.isAdHoc);
       }
 
       if (this.$route.query.brewId && this.$route.query.action === 'edit') {
