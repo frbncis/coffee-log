@@ -1,5 +1,23 @@
 <template>
   <v-container class="px-0 pt-0 pb-0">
+
+    <input
+      v-model="appSearchText"
+      hidden
+      @formchange="() => updateBeanSearchFilter()"
+    />
+
+    <v-combobox
+      v-model="roasterFilter"
+      class="pt-3 pl-3 pr-3"
+      :items="roasterNames"
+      placeholder="Filter by Roaster"
+      outlined
+      persistent-hint
+      clearable
+      @change="() => updateBeanSearchFilter()"
+    />
+
     <v-skeleton-loader
       type="bean@4"
       tile
@@ -32,11 +50,13 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
+import { Component, Watch } from 'vue-property-decorator';
 import { Action, State, Mutation } from 'vuex-class';
 import BeansList from '@/components/BeansList.vue';
+import { BeanSearchFilter } from '@/services/firebase';
 import Bean from '../models/beans';
 import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
+import Roaster from '../models/roaster';
 
 @Component({
   components: {
@@ -48,10 +68,26 @@ export default class Beans extends Vue {
   beans!: {[beanId: string]: Bean}
 
   @State
+  roasters!: Roaster[];
+
+  @State
+  appSearchText!: string;
+
+  get roasterNames() {
+    return this.roasters.map((roaster) => roaster.name);
+  }
+
+  @State
   beansResultsExhausted!: boolean;
+
+  @State
+  beanSearchFilter!: BeanSearchFilter;
 
   @Action
   getBeans!: () => Promise<void>
+
+  @Action
+  getRoasters!: () => Promise<void>
 
   @Mutation('SET_TITLE')
   setTitle!: (appBarTitle: string) => void;
@@ -59,7 +95,12 @@ export default class Beans extends Vue {
   @Mutation('SET_TOP_NAVIGATION')
   setTopNavigation!: (buttons: BottomNavigatorButtonViewModel[]) => void;
 
+  @Mutation('SET_BEAN_SEARCH_FILTER')
+  setBeanSearchFilter!: (beanSearchFilter: BeanSearchFilter) => Promise<void>;
+
   beansLoadingInProgress = false;
+
+  roasterFilter = '';
 
   mounted() {
     this.setTitle('Beans');
@@ -68,6 +109,14 @@ export default class Beans extends Vue {
 
   async created() {
     await this.getBeans();
+    await this.getRoasters();
+
+    const { roaster } = this.$route.query;
+
+    if (roaster) {
+      this.roasterFilter = roaster as string;
+      this.updateBeanSearchFilter();
+    }
   }
 
   get loading() {
@@ -76,6 +125,29 @@ export default class Beans extends Vue {
 
   goToBeanDetails(beanId: string) {
     this.$router.push({ name: 'Bean', params: { beanId } });
+  }
+
+  @Watch('appSearchText', { immediate: false, deep: false })
+  async updateBeanSearchFilter() {
+    this.beanSearchFilter.beanName = this.appSearchText;
+    this.beanSearchFilter.roasterName = this.roasterFilter;
+
+    const newQuery = {
+      ...this.$route.query,
+      roaster: this.beanSearchFilter.roasterName,
+    };
+
+    if (!newQuery.roaster) {
+      delete newQuery.roaster;
+    }
+
+    this.$router.replace({
+      name: 'Beans',
+      query: newQuery,
+    });
+
+    await this.setBeanSearchFilter(this.beanSearchFilter);
+    await this.getBeans();
   }
 
   async onBottomReached() {

@@ -32,6 +32,9 @@ const routes = [
     path: '/beans',
     name: 'Beans',
     component: () => import(/* webpackChunkName: "beans" */ '../views/Beans.vue'),
+    meta: {
+      isAppSearch: true,
+    },
   },
   {
     path: '/beans/:beanId',
@@ -73,6 +76,17 @@ router.beforeEach((to, from, next) => {
     store.commit('SET_BOTTOM_NAVIGATION_DISPLAY', false);
   } else {
     store.commit('SET_BOTTOM_NAVIGATION_DISPLAY', true);
+  }
+
+  const { search } = to.query;
+
+  // Check if the destination page has search behavior
+  if (to.matched.some((record) => record.meta.isAppSearch)) {
+    store.commit('SET_APP_SEARCH', true);
+    store.commit('SET_APP_SEARCH_TEXT', search);
+  } else {
+    store.commit('SET_APP_SEARCH', false);
+    store.commit('SET_APP_SEARCH_TEXT', '');
   }
 
   next();

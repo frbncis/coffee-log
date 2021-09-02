@@ -4,14 +4,40 @@ import Bean from '@/models/beans';
 import BeanUserMetadata from '@/models/beanUserMetadata';
 import Brew from '@/models/brew';
 import {
-  beansCollection, brewsCollection, usersCollection, beanUserMetadataCollection,
+  beansCollection,
+  brewsCollection,
+  usersCollection,
+  beanUserMetadataCollection, roastersCollection, BeanSearchFilter,
 } from '@/services/firebase';
 import BottomNavigatorButtonViewModel from '@/components/bottomNavigator/bottomNavigatorButtonViewModel';
 import firebase from 'firebase';
+import Roaster from '@/models/roaster';
 
 // TODO: Move this into the state store? This is good enough for now though.
 let lastVisible:
 firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData> | null = null;
+
+const beanSearch = (startAfterBeanName = '', searchFilter: BeanSearchFilter) => {
+  const query = beansCollection;
+
+  let beanQuery = query.orderBy('name');
+
+  if (searchFilter.roasterName) {
+    beanQuery = beanQuery.where('roaster', '==', searchFilter.roasterName);
+  }
+
+  if (searchFilter.beanName) {
+    beanQuery = beanQuery
+      .where('name', '>=', searchFilter.beanName)
+      .where('name', '<=', `${searchFilter.beanName}~`);
+  }
+
+  beanQuery = beanQuery
+    .limit(10)
+    .startAfter(startAfterBeanName);
+
+  return beanQuery.get();
+};
 
 Vue.use(Vuex);
 
@@ -35,12 +61,17 @@ export interface State {
   showBack: boolean;
   beans: {[beanId: string]: Bean};
   brews: {[brewId: string]: Brew};
+  roasters: Roaster[];
   user: User;
   bottomNavigator: BottomNavigatorButtonViewModel[];
   bottomNavigatorDisplay: boolean;
   topNavigator: BottomNavigatorButtonViewModel[];
   appUpdated: boolean;
+  isAppSearch: boolean;
+  appSearchText: string;
   beansResultsExhausted: boolean;
+  beanSearchFilter: BeanSearchFilter;
+  lastUsedBeanSearchFilter: string;
 }
 
 export default new Vuex.Store<State>({
@@ -49,6 +80,7 @@ export default new Vuex.Store<State>({
     showBack: false,
     beans: {},
     brews: {},
+    roasters: [],
     user: {
       loggedIn: false,
       metadata: {
@@ -63,7 +95,11 @@ export default new Vuex.Store<State>({
     bottomNavigatorDisplay: true,
     topNavigator: [],
     appUpdated: false,
+    isAppSearch: false,
+    appSearchText: '',
     beansResultsExhausted: false,
+    beanSearchFilter: new BeanSearchFilter(),
+    lastUsedBeanSearchFilter: '',
   },
   getters: {
     user(state) {
@@ -104,6 +140,9 @@ export default new Vuex.Store<State>({
         [bean.id]: bean,
       };
     },
+    CLEAR_BEANS(state) {
+      state.beans = {};
+    },
     SET_BREWS(state, brews) {
       state.brews = brews;
     },
@@ -122,11 +161,26 @@ export default new Vuex.Store<State>({
     SET_TOP_NAVIGATION(state, bottomNavigatorButtonViewModels) {
       state.topNavigator = bottomNavigatorButtonViewModels;
     },
+    SET_APP_SEARCH(state, isSearch) {
+      state.isAppSearch = isSearch;
+    },
+    SET_APP_SEARCH_TEXT(state, searchText) {
+      state.appSearchText = searchText;
+    },
     NOTIFY_APPLICATION_UPDATED(state, isUpdated) {
       state.appUpdated = isUpdated;
     },
     SET_BEANS_RESULTS_EXHAUSTED(state, isExhausted) {
       state.beansResultsExhausted = isExhausted;
+    },
+    SET_ROASTERS(state, roasters) {
+      state.roasters = roasters;
+    },
+    SET_LAST_USED_BEAN_SEARCH_FILTER(state, filter) {
+      state.lastUsedBeanSearchFilter = filter;
+    },
+    SET_BEAN_SEARCH_FILTER(state, filter) {
+      state.beanSearchFilter = filter;
     },
   },
   actions: {
@@ -182,18 +236,16 @@ export default new Vuex.Store<State>({
       commit('SET_BREWS', brews);
     },
     async getBeans(context) {
-      const query = beansCollection;
       let startAfterBeanName = '';
+      const usedBeanSearchFilter = JSON.stringify(context.state.beanSearchFilter);
 
-      if (lastVisible) {
+      if (context.state.lastUsedBeanSearchFilter !== usedBeanSearchFilter) {
+        await context.commit('CLEAR_BEANS');
+      } else if (lastVisible) {
         startAfterBeanName = (lastVisible.data() as Bean).name;
       }
 
-      const beanQueryResult = await query
-        .orderBy('name')
-        .limit(10)
-        .startAfter(startAfterBeanName)
-        .get();
+      const beanQueryResult = await beanSearch(startAfterBeanName, context.state.beanSearchFilter);
 
       if (!beanQueryResult.empty) {
         const beans: {[beanId: string]: Bean} = {};
@@ -208,10 +260,32 @@ export default new Vuex.Store<State>({
 
         context.commit('SET_BEANS_RESULTS_EXHAUSTED', false);
 
+        await context.commit(
+          'SET_LAST_USED_BEAN_SEARCH_FILTER',
+          usedBeanSearchFilter,
+        );
+
         return context.commit('ADD_BEANS', beans);
       }
 
       return context.commit('SET_BEANS_RESULTS_EXHAUSTED', true);
+    },
+    async getRoasters(context) {
+      const query = roastersCollection;
+
+      const roasterQueryResult = await query.get();
+
+      const roasters: Roaster[] = [];
+
+      if (!roasterQueryResult.empty) {
+        roasterQueryResult.forEach((roasterDocument) => {
+          const roaster = roasterDocument.data() as Roaster;
+          roaster.id = roasterDocument.id;
+          roasters.push(roaster);
+        });
+      }
+
+      return context.commit('SET_ROASTERS', roasters);
     },
     async getBrewById(context, brewId) {
       let brew: Brew | null = null;
