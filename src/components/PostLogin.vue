@@ -12,7 +12,33 @@
         <v-icon>mdi-arrow-left</v-icon>
       </v-app-bar-nav-icon>
 
-      <v-toolbar-title>{{ title }}</v-toolbar-title>
+      <v-toolbar-title v-if="!isInSearchMode || !isAppSearch">{{ title }}</v-toolbar-title>
+
+      <template v-if="!isInSearchMode">
+        <v-spacer />
+        <v-app-bar-nav-icon
+          v-if="isAppSearch"
+          @click.stop="showSearch"
+        >
+          <v-icon>mdi-magnify</v-icon>
+        </v-app-bar-nav-icon>
+      </template>
+      <template v-else-if="isAppSearch">
+        <!-- Search Bar -->
+        <v-app-bar-nav-icon
+          @click.stop="dismissSearch"
+        >
+          <v-icon>mdi-arrow-left</v-icon>
+        </v-app-bar-nav-icon>
+        <v-text-field
+          v-model="appSearchTextLocal"
+          hide-details
+          single-line
+          clearable
+          placeholder="Search"
+          @change="handleSearchTextChange"
+        ></v-text-field>
+      </template>
 
       <template
         v-slot:extension
@@ -72,6 +98,8 @@ export default {
       title: 'title',
       showBack: 'showBack',
       appUpdated: 'appUpdated',
+      appSearchText: 'appSearchText',
+      isAppSearch: 'isAppSearch',
     }),
   },
   props: {
@@ -83,6 +111,8 @@ export default {
     showTabBar: true,
     showActionsSheet: false,
     quickActionButtons: [],
+    appSearchTextLocal: '',
+    isInSearchMode: false,
   }),
   created() {
     this.setBottomNavigation([
@@ -101,10 +131,18 @@ export default {
         },
       })),
     ];
+
+    this.appSearchTextLocal = this.appSearchText;
+
+    if (this.appSearchText) {
+      this.isInSearchMode = true;
+    }
   },
   methods: {
     ...mapMutations({
       setBottomNavigation: 'SET_BOTTOM_NAVIGATION',
+      setAppSearchText: 'SET_APP_SEARCH_TEXT',
+      setAppSearch: 'SET_APP_SEARCH',
     }),
     ...mapActions([
       'quickBrew',
@@ -120,6 +158,29 @@ export default {
     },
     handleQuickBrewClick() {
       this.quickBrew(this.$router);
+    },
+    handleSearchTextChange() {
+      const newQuery = {
+        ...this.$route.query,
+        search: this.appSearchTextLocal,
+      };
+
+      if (!this.appSearchTextLocal) {
+        delete newQuery.search;
+      }
+
+      this.$router.replace({
+        name: this.$route.name,
+        query: newQuery,
+      });
+
+      this.setAppSearchText(this.appSearchTextLocal);
+    },
+    showSearch() {
+      this.isInSearchMode = true;
+    },
+    dismissSearch() {
+      this.isInSearchMode = false;
     },
   },
 };

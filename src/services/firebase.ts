@@ -24,15 +24,24 @@ const storage = firebase.storage();
 
 const beansCollection = db.collection('beans');
 const brewsCollection = db.collection('brews');
+const roastersCollection = db.collection('roasters');
 const usersCollection = db.collection('users');
 const beanUserMetadataCollection = db.collection('beanUserMetadata');
 
+class BeanSearchFilter {
+  roasterName = ''
+
+  beanName = '';
+}
+
 export {
+  BeanSearchFilter,
   auth,
   db,
   perf,
   storage,
   beansCollection,
+  roastersCollection,
   beanUserMetadataCollection,
   brewsCollection,
   usersCollection,
