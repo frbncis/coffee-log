@@ -37,7 +37,8 @@
           clearable
           placeholder="Search"
           @change="handleSearchTextChange"
-        ></v-text-field>
+          :autofocus="focusSearchBar"
+        />
       </template>
 
       <template
@@ -113,6 +114,7 @@ export default {
     quickActionButtons: [],
     appSearchTextLocal: '',
     isInSearchMode: false,
+    focusSearchBar: false,
   }),
   created() {
     this.setBottomNavigation([
@@ -178,9 +180,13 @@ export default {
     },
     showSearch() {
       this.isInSearchMode = true;
+      this.focusSearchBar = true;
     },
     dismissSearch() {
       this.isInSearchMode = false;
+      this.focusSearchBar = false;
+      this.appSearchTextLocal = '';
+      this.handleSearchTextChange();
     },
   },
 };
