@@ -58,7 +58,13 @@
           type="list-item-two-line"
         >
           <v-card-text class="mt-0 pt-0" v-if="bean.tastingNotes">
-            {{ bean.tastingNotes }}
+            <v-chip
+              v-for="tastingNote in beanTastingNotes"
+              :key="tastingNote"
+              class="mr-2"
+            >
+              {{ tastingNote }}
+            </v-chip>
           </v-card-text>
           <div v-else />
         </v-skeleton-loader>
@@ -333,6 +339,16 @@ export default class BeanView extends Vue {
 
   get isBeanLiked() {
     return this.beanUserMetadata?.isLiked;
+  }
+
+  get beanTastingNotes() {
+    // Sort of a hack, right now this is an array that contains
+    // a single string; this string contains the tasting notes separated by an commas
+    if (this.bean.tastingNotes.length === 1 && this.bean.tastingNotes[0].indexOf(',') > -1) {
+      return this.bean.tastingNotes[0].split(',');
+    }
+
+    return this.bean.tastingNotes;
   }
 
   get loading() {
