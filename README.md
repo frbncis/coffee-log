@@ -1,4 +1,5 @@
 # coffee-log
+[![Build Status](https://app.travis-ci.com/frbncis/coffee-log.svg?branch=master)](https://app.travis-ci.com/frbncis/coffee-log)
 
 ## Project setup
 ```
