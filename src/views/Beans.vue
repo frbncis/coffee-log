@@ -74,7 +74,7 @@ export default class Beans extends Vue {
   appSearchText!: string;
 
   get roasterNames() {
-    return this.roasters.map((roaster) => roaster.name);
+    return this.roasters.map((roaster) => roaster.name).sort();
   }
 
   @State
