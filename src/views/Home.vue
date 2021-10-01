@@ -60,11 +60,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
+import { Component, Ref } from 'vue-property-decorator';
 import { Action, Mutation, State } from 'vuex-class';
 import BeansList from '@/components/BeansList.vue';
 import Bean from '@/models/beans';
 import { Swiper, SwiperSlide, directive } from 'vue-awesome-swiper';
+import SwiperClass from 'swiper';
 import { User } from '../store';
 import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
 import 'swiper/css/swiper.css';
@@ -110,15 +111,11 @@ export default class Home extends Vue {
     return beanGroups;
   }
 
-  get swiper() {
-    return this.$refs.recentBeanSwiper.$swiper;
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  @Ref() readonly recentBeanSwiper!: any;
 
-  get selectedIndex() {
-    if (this.swiper) {
-      return this.swiper.selectedIndex;
-    }
-    return -1;
+  get swiper() {
+    return this.recentBeanSwiper.$swiper as SwiperClass;
   }
 
   get userHasRecentBeans() {
