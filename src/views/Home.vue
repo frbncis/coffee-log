@@ -4,47 +4,55 @@
       v-if="userHasRecentBeans"
     >
       <h1 class="title">Recently Brewed</h1>
-        <v-row
-          dense
-        >
-          <v-col
-            v-for="bean in recentBeans"
-            :key="bean.id"
-            class="pt-5"
-            cols="6"
+        <swiper ref="recentBeanSwiper" :options="{ pagination: { el: '.swiper-pagination' } }">
+          <swiper-slide
+            v-for="beanGroup in recentBeansCells"
+            :key="'bean-cell-' + beanGroup[0].id"
           >
-            <v-skeleton-loader
-              class="mx-auto"
-              max-width="300"
-              type="card"
-              :loading="loading"
+            <v-row
+              dense
             >
-              <v-card
-                @click.stop="() => goToBeanDetails(bean.id)"
+            <v-col
+              class="pt-5"
+              :cols="11 / itemsPerSwipeableCell"
+              v-for="bean in beanGroup"
+              :key="bean.id"
+            >
+              <v-skeleton-loader
+                class="mx-auto"
+                type="card"
+                :loading="loading"
               >
-                <v-img
-                  :src="bean.imageUrl"
-                  class="align-end"
-                  aspect-ratio="1"
-                  contain
+                <v-card
+                  @click.stop="() => goToBeanDetails(bean.id)"
                 >
-                  <template v-slot:placeholder>
-                    <v-row
-                      class="fill-height ma-0"
-                      align="center"
-                      justify="center"
-                    >
-                      <v-progress-circular
-                        indeterminate
-                        color="grey lighten-5" />
-                    </v-row>
-                  </template>
-                </v-img>
-
-                <v-card-title class="subtitle-2" v-text="bean.name" />
-              </v-card>
-            </v-skeleton-loader>
-          </v-col>
+                  <v-img
+                    :src="bean.imageUrl"
+                    class="align-end"
+                    aspect-ratio="1"
+                    contain
+                  >
+                    <template v-slot:placeholder>
+                      <v-row
+                        class="fill-height ma-0"
+                        align="center"
+                        justify="center"
+                      >
+                        <v-progress-circular
+                          indeterminate
+                          color="grey lighten-5" />
+                      </v-row>
+                    </template>
+                  </v-img>
+                  <v-card-title class="subtitle-2" v-text="bean.name" />
+                </v-card>
+              </v-skeleton-loader>
+            </v-col>
+            </v-row>
+          </swiper-slide>
+        </swiper>
+        <v-row>
+          <v-col cols=12 class="swiper-pagination pt-0 mt-0" slot="pagination"/>
         </v-row>
       </div>
   </div>
@@ -56,12 +64,19 @@ import { Component } from 'vue-property-decorator';
 import { Action, Mutation, State } from 'vuex-class';
 import BeansList from '@/components/BeansList.vue';
 import Bean from '@/models/beans';
+import { Swiper, SwiperSlide, directive } from 'vue-awesome-swiper';
 import { User } from '../store';
 import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
+import 'swiper/css/swiper.css';
 
 @Component({
   components: {
     'beans-list': BeansList,
+    Swiper,
+    SwiperSlide,
+  },
+  directives: {
+    swiper: directive,
   },
 })
 export default class Home extends Vue {
@@ -82,6 +97,29 @@ export default class Home extends Vue {
   setTitle!: (appBarTitle: string) => void;
 
   private beansHasLoadedOnce = false;
+
+  itemsPerSwipeableCell = 2;
+
+  get recentBeansCells() {
+    const beanGroups: Bean[][] = [];
+
+    for (let i = 0; i < this.recentBeans.length; i += this.itemsPerSwipeableCell) {
+      beanGroups.push(this.recentBeans.slice(i, i + this.itemsPerSwipeableCell));
+    }
+
+    return beanGroups;
+  }
+
+  get swiper() {
+    return this.$refs.recentBeanSwiper.$swiper;
+  }
+
+  get selectedIndex() {
+    if (this.swiper) {
+      return this.swiper.selectedIndex;
+    }
+    return -1;
+  }
 
   get userHasRecentBeans() {
     if (this.user.data.recentBeans.length > 0) {
@@ -114,7 +152,7 @@ export default class Home extends Vue {
 
       const topThreeRecentBeans = buffer
         .reverse()
-        .slice(0, 4);
+        .slice(0, this.itemsPerSwipeableCell * 3);
 
       const b1 = topThreeRecentBeans.map((id) => this.getBeanById(id));
 
@@ -127,3 +165,9 @@ export default class Home extends Vue {
   }
 }
 </script>
+
+<style scoped>
+swiper-pagination-bullet-active {
+  background: white;
+}
+</style>
