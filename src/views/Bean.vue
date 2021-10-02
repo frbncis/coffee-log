@@ -60,7 +60,7 @@
             <v-chip
               v-for="tastingNote in beanTastingNotes"
               :key="tastingNote"
-              class="mr-2"
+              class="mr-2 mb-2"
             >
               {{ tastingNote }}
             </v-chip>
@@ -68,18 +68,20 @@
           <div v-else />
         </v-skeleton-loader>
 
-        <v-divider />
+        <v-divider v-if="bean.story.length > 0" />
 
-        <v-card-text>
+        <v-card-text v-if="bean.story.length > 0">
           <v-skeleton-loader
           :loading="loading"
           type="paragraph"
           >
             <p>{{ bean.story }}</p>
           </v-skeleton-loader>
+        </v-card-text>
 
-          <v-divider />
+        <v-divider />
 
+        <v-card-text>
           <v-skeleton-loader
             :loading="loading"
             type="paragraph"
