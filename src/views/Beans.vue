@@ -9,6 +9,7 @@
 
     <v-combobox
       v-model="roasterFilter"
+      v-if="isInSearchMode"
       class="pt-3 pl-3 pr-3"
       :items="roasterNames"
       placeholder="Filter by Roaster"
@@ -82,6 +83,9 @@ export default class Beans extends Vue {
 
   @State
   beanSearchFilter!: BeanSearchFilter;
+
+  @State
+  isInSearchMode!: boolean;
 
   @Action
   getBeans!: () => Promise<void>

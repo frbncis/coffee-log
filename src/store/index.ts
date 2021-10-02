@@ -68,6 +68,7 @@ export interface State {
   topNavigator: BottomNavigatorButtonViewModel[];
   appUpdated: boolean;
   isAppSearch: boolean;
+  isInSearchMode: boolean;
   appSearchText: string;
   beansResultsExhausted: boolean;
   beanSearchFilter: BeanSearchFilter;
@@ -96,6 +97,7 @@ export default new Vuex.Store<State>({
     topNavigator: [],
     appUpdated: false,
     isAppSearch: false,
+    isInSearchMode: false,
     appSearchText: '',
     beansResultsExhausted: false,
     beanSearchFilter: new BeanSearchFilter(),
@@ -163,6 +165,9 @@ export default new Vuex.Store<State>({
     },
     SET_APP_SEARCH(state, isSearch) {
       state.isAppSearch = isSearch;
+    },
+    SET_IS_IN_SEARCH_MODE(state, isInSearchMode) {
+      state.isInSearchMode = isInSearchMode;
     },
     SET_APP_SEARCH_TEXT(state, searchText) {
       state.appSearchText = searchText;

@@ -101,6 +101,7 @@ export default {
       appUpdated: 'appUpdated',
       appSearchText: 'appSearchText',
       isAppSearch: 'isAppSearch',
+      isInSearchMode: 'isInSearchMode',
     }),
   },
   props: {
@@ -113,7 +114,6 @@ export default {
     showActionsSheet: false,
     quickActionButtons: [],
     appSearchTextLocal: '',
-    isInSearchMode: false,
     focusSearchBar: false,
   }),
   created() {
@@ -145,6 +145,7 @@ export default {
       setBottomNavigation: 'SET_BOTTOM_NAVIGATION',
       setAppSearchText: 'SET_APP_SEARCH_TEXT',
       setAppSearch: 'SET_APP_SEARCH',
+      setIsInSearchMode: 'SET_IS_IN_SEARCH_MODE',
     }),
     ...mapActions([
       'quickBrew',
@@ -181,12 +182,14 @@ export default {
     showSearch() {
       this.isInSearchMode = true;
       this.focusSearchBar = true;
+      this.setIsInSearchMode(true);
     },
     dismissSearch() {
       this.isInSearchMode = false;
       this.focusSearchBar = false;
       this.appSearchTextLocal = '';
       this.handleSearchTextChange();
+      this.setIsInSearchMode(false);
     },
   },
 };
