@@ -61,8 +61,9 @@
               v-for="tastingNote in beanTastingNotes"
               :key="tastingNote"
               class="mr-2 mb-2"
+              :color="getFlavorColor(tastingNote).color"
             >
-              {{ tastingNote }}
+              {{ getFlavorColor(tastingNote).emoji }} {{ tastingNote }}
             </v-chip>
           </v-card-text>
           <div v-else />
@@ -266,6 +267,7 @@ import Bean from '@/models/beans';
 import BeanUserMetadata from '@/models/beanUserMetadata';
 import Brew from '@/models/brew';
 import formatTime from '@/utils/timeUtils';
+import Flavors from '@/models/flavors';
 import SwipeableListItem from '../components/SwipeableListItem.vue';
 import store from '../store';
 import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
@@ -346,10 +348,19 @@ export default class BeanView extends Vue {
     // Sort of a hack, right now this is an array that contains
     // a single string; this string contains the tasting notes separated by an commas
     if (this.bean.tastingNotes.length === 1 && this.bean.tastingNotes[0].indexOf(',') > -1) {
-      return this.bean.tastingNotes[0].split(',');
+      return this.bean.tastingNotes[0].split(',').map((note) => note.trim());
     }
 
     return this.bean.tastingNotes;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getFlavorColor(flavor: string): { color: string; emoji: string } {
+    if (flavor in Flavors) {
+      return Flavors[flavor];
+    }
+
+    return { color: '', emoji: '' };
   }
 
   get loading() {

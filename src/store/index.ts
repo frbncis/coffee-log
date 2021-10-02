@@ -420,6 +420,10 @@ export default new Vuex.Store<State>({
         if (beanDocument.exists) {
           const beanData = beanDocument.data() as Bean;
 
+          if (beanData.tastingNotes.length >= 1 && beanData.tastingNotes[0].indexOf(',') > -1) {
+            beanData.tastingNotes = beanData.tastingNotes[0].split(',').map((note) => note.trim());
+          }
+
           context.commit('ADD_BEAN', beanData);
 
           bean = beanData;
