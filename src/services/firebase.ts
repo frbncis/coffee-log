@@ -32,6 +32,8 @@ class BeanSearchFilter {
   roasterName = ''
 
   beanName = '';
+
+  filterByLiked = false;
 }
 
 export {

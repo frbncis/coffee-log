@@ -7,17 +7,29 @@
       @formchange="() => updateBeanSearchFilter()"
     />
 
-    <v-combobox
-      v-model="roasterFilter"
+    <div
       v-if="isInSearchMode"
-      class="pt-3 pl-3 pr-3"
-      :items="roasterNames"
-      placeholder="Filter by Roaster"
-      outlined
-      persistent-hint
-      clearable
-      @change="() => updateBeanSearchFilter()"
-    />
+      class="pt-3 pl-3 pr-3 pb-3"
+    >
+      <v-combobox
+        v-model="roasterFilter"
+        :items="roasterNames"
+        placeholder="Filter by Roaster"
+        outlined
+        persistent-hint
+        clearable
+        @change="() => updateBeanSearchFilter()"
+      />
+
+      <v-chip
+        pill
+        :outlined="!filterByLiked"
+        @click="toggleFilterByLiked"
+      >
+        <v-icon left>{{ filterByLiked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+        Liked
+      </v-chip>
+    </div>
 
     <v-skeleton-loader
       type="bean@4"
@@ -106,6 +118,8 @@ export default class Beans extends Vue {
 
   roasterFilter = '';
 
+  filterByLiked = false;
+
   mounted() {
     this.setTitle('Beans');
     this.setTopNavigation([]);
@@ -115,10 +129,15 @@ export default class Beans extends Vue {
     await this.getBeans();
     await this.getRoasters();
 
-    const { roaster } = this.$route.query;
+    const { roaster, filterByLiked } = this.$route.query;
 
     if (roaster) {
       this.roasterFilter = roaster as string;
+      this.updateBeanSearchFilter();
+    }
+
+    if (filterByLiked) {
+      this.filterByLiked = (filterByLiked === 'true');
       this.updateBeanSearchFilter();
     }
   }
@@ -135,14 +154,20 @@ export default class Beans extends Vue {
   async updateBeanSearchFilter() {
     this.beanSearchFilter.beanName = this.appSearchText;
     this.beanSearchFilter.roasterName = this.roasterFilter;
+    this.beanSearchFilter.filterByLiked = this.filterByLiked;
 
     const newQuery = {
       ...this.$route.query,
       roaster: this.beanSearchFilter.roasterName,
+      filterByLiked: this.beanSearchFilter.filterByLiked.toString(),
     };
 
     if (!newQuery.roaster) {
       delete newQuery.roaster;
+    }
+
+    if (!newQuery.filterByLiked) {
+      delete newQuery.filterByLiked;
     }
 
     this.$router.replace({
@@ -160,6 +185,11 @@ export default class Beans extends Vue {
       await this.getBeans();
       this.beansLoadingInProgress = false;
     }
+  }
+
+  toggleFilterByLiked() {
+    this.filterByLiked = !this.filterByLiked;
+    this.updateBeanSearchFilter();
   }
 }
 </script>

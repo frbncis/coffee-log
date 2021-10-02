@@ -12,15 +12,33 @@ import {
 import BottomNavigatorButtonViewModel from '@/components/bottomNavigator/bottomNavigatorButtonViewModel';
 import firebase from 'firebase';
 import Roaster from '@/models/roaster';
+import VueRouter from 'vue-router';
 
 // TODO: Move this into the state store? This is good enough for now though.
 let lastVisible:
 firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData> | null = null;
 
-const beanSearch = (startAfterBeanName = '', searchFilter: BeanSearchFilter) => {
+const beanSearch = async (
+  startAfterBeanName = '',
+  searchFilter: BeanSearchFilter,
+  userId: string) => {
   const query = beansCollection;
 
-  let beanQuery = query.orderBy('name');
+  let beanQuery;
+
+  // First bit of the query changes if we're filtering by likes
+  if (searchFilter.filterByLiked) {
+    beanQuery = query
+      .limit(10000);
+  } else {
+    beanQuery = query
+      .orderBy('name', 'asc')
+      .limit(10);
+
+    if (startAfterBeanName !== '') {
+      beanQuery = beanQuery.startAfter(startAfterBeanName);
+    }
+  }
 
   if (searchFilter.roasterName) {
     beanQuery = beanQuery.where('roaster', '==', searchFilter.roasterName);
@@ -32,9 +50,19 @@ const beanSearch = (startAfterBeanName = '', searchFilter: BeanSearchFilter) => 
       .where('name', '<=', `${searchFilter.beanName}~`);
   }
 
-  beanQuery = beanQuery
-    .limit(10)
-    .startAfter(startAfterBeanName);
+  if (searchFilter.filterByLiked) {
+    const testQuery = beanUserMetadataCollection
+      .where('userId', '==', userId)
+      .where('isLiked', '==', true);
+
+    const testResults = await testQuery.get();
+
+    const beanIds = testResults.docs
+      .map((beanUserMetadataDoc) => (beanUserMetadataDoc.data() as BeanUserMetadata).beanId);
+
+    beanQuery = beanQuery
+      .where('id', 'in', beanIds);
+  }
 
   return beanQuery.get();
 };
@@ -189,7 +217,7 @@ export default new Vuex.Store<State>({
     },
   },
   actions: {
-    async quickBrew(context, router: any) {
+    async quickBrew(context, router: VueRouter) {
       const recentBeanId = context.state.user.data.recentBeans.slice(-1)[0];
       const mostRecentBrewForBean = await context.dispatch(
         'getMostRecentBrewByBeanId',
@@ -250,7 +278,11 @@ export default new Vuex.Store<State>({
         startAfterBeanName = (lastVisible.data() as Bean).name;
       }
 
-      const beanQueryResult = await beanSearch(startAfterBeanName, context.state.beanSearchFilter);
+      const beanQueryResult = await beanSearch(
+        startAfterBeanName,
+        context.state.beanSearchFilter,
+        context.state.user.metadata.id,
+      );
 
       if (!beanQueryResult.empty) {
         const beans: {[beanId: string]: Bean} = {};
