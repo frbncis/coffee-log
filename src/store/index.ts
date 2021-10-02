@@ -62,8 +62,6 @@ const beanSearch = async (
 
     beanQuery = beanQuery
       .where('id', 'in', beanIds);
-
-    console.log(beanIds);
   }
 
   return beanQuery.get();
