@@ -184,6 +184,8 @@ export default Vue.extend({
       } else {
         const createdBeanDocument = await beansCollection.add({ ...this.beanModel });
         this.beanModel.id = createdBeanDocument.id;
+
+        await beansCollection.doc(this.beanModel.id).set({ ...this.beanModel });
       }
 
       this.$router.push({ name: 'Beans' });
