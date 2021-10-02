@@ -10,7 +10,7 @@
 
         <v-combobox
           v-model="beanModel.roaster"
-          :items="roasters"
+          :items="roasterNames"
           placeholder="Roaster"
           outlined
         />
@@ -97,6 +97,7 @@ import Bean from '@/models/beans';
 import { beansCollection, storage } from '@/services/firebase';
 import { mapGetters, mapActions, mapMutations } from 'vuex';
 import store from '@/store';
+import Roaster from '@/models/roaster';
 
 export default Vue.extend({
   name: 'CreateBeans',
@@ -104,17 +105,16 @@ export default Vue.extend({
     ...mapGetters({
       user: 'user',
     }),
+    roasters(): Roaster[] {
+      return store.state.roasters;
+    },
+    roasterNames(): string[] {
+      return this.roasters.map((roaster: Roaster) => roaster.name).sort();
+    },
   },
   data: () => ({
     beanImageFile: undefined,
     beanModel: new Bean(),
-    roasters: [
-      'Discovery Coffee',
-      'Transcend Coffee & Roastery',
-      '49th Parallel Coffee Roasters',
-      'Detour Coffee Roasters',
-      'Pallet Coffee Roasters',
-    ].sort(),
     originCountries: [
       'Brazil',
       'Ethiopia',
