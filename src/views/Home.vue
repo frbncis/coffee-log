@@ -1,23 +1,15 @@
 <template>
-  <div class="pt-5 pb-5 pl-3 pr-3">
+  <div class="pt-5 pl-3 pr-3">
     <div
       v-if="userHasRecentBeans"
     >
       <h1 class="title">Recently Brewed</h1>
-        <swiper ref="recentBeanSwiper" :options="{ pagination: { el: '.swiper-pagination' } }">
+        <swiper ref="recentBeanSwiper" :options="recentBeanSwiperOptions">
           <swiper-slide
-            v-for="beanGroup in recentBeansCells"
-            :key="'bean-cell-' + beanGroup[0].id"
+            v-for="bean in recentBeans"
+            :key="'bean-cell-' + bean.id"
           >
-            <v-row
-              dense
-            >
-            <v-col
-              class="pt-5"
-              :cols="11 / itemsPerSwipeableCell"
-              v-for="bean in beanGroup"
-              :key="bean.id"
-            >
+            <v-col class="pl-0 ml-0" cols='12'>
               <v-skeleton-loader
                 class="mx-auto"
                 type="card"
@@ -30,7 +22,6 @@
                     :src="bean.imageUrl"
                     class="align-end"
                     aspect-ratio="1"
-                    contain
                   >
                     <template v-slot:placeholder>
                       <v-row
@@ -48,7 +39,6 @@
                 </v-card>
               </v-skeleton-loader>
             </v-col>
-            </v-row>
           </swiper-slide>
         </swiper>
         <v-row>
@@ -99,17 +89,14 @@ export default class Home extends Vue {
 
   private beansHasLoadedOnce = false;
 
-  itemsPerSwipeableCell = 2;
-
-  get recentBeansCells() {
-    const beanGroups: Bean[][] = [];
-
-    for (let i = 0; i < this.recentBeans.length; i += this.itemsPerSwipeableCell) {
-      beanGroups.push(this.recentBeans.slice(i, i + this.itemsPerSwipeableCell));
-    }
-
-    return beanGroups;
-  }
+  recentBeanSwiperOptions = {
+    slidesPerView: 2,
+    spaceBetween: 10,
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+  };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Ref() readonly recentBeanSwiper!: any;
@@ -149,7 +136,7 @@ export default class Home extends Vue {
 
       const topThreeRecentBeans = buffer
         .reverse()
-        .slice(0, this.itemsPerSwipeableCell * 3);
+        .slice(0, 8);
 
       const b1 = topThreeRecentBeans.map((id) => this.getBeanById(id));
 
@@ -162,9 +149,3 @@ export default class Home extends Vue {
   }
 }
 </script>
-
-<style scoped>
-swiper-pagination-bullet-active {
-  background: white;
-}
-</style>
