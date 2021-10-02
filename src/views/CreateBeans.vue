@@ -95,7 +95,12 @@
 import Vue from 'vue';
 import Bean from '@/models/beans';
 import { beansCollection, storage } from '@/services/firebase';
-import { mapGetters, mapActions, mapMutations } from 'vuex';
+import {
+  mapGetters,
+  mapActions,
+  mapMutations,
+  mapState,
+} from 'vuex';
 import store from '@/store';
 import Roaster from '@/models/roaster';
 
@@ -105,9 +110,9 @@ export default Vue.extend({
     ...mapGetters({
       user: 'user',
     }),
-    roasters(): Roaster[] {
-      return store.state.roasters;
-    },
+    ...mapState({
+      roasters: 'roasters',
+    }),
     roasterNames(): string[] {
       return this.roasters.map((roaster: Roaster) => roaster.name).sort();
     },
