@@ -86,12 +86,47 @@
                     </template>
                   </v-text-field>
 
+                  <v-subheader class="pl-0 pt-0 mt-0 pb-0 mb-0">Brew Ratio</v-subheader>
+
+                  <v-slider
+                    v-model="brewRatio"
+                    min="10"
+                    max="20"
+                    inverse-label
+                    :label="String(brewRatio)"
+                    @change="recalculateDoseFromBrewRatio"
+                  >
+                    <template v-slot:prepend>
+                      <v-icon
+                        :disabled="isBrewRatioLocked"
+                        @click="decrementBrewRatio"
+                      >
+                        mdi-minus
+                      </v-icon>
+                    </template>
+
+                    <template v-slot:append>
+                      <v-icon
+                        :disabled="isBrewRatioLocked"
+                        @click="incrementBrewRatio"
+                      >
+                        mdi-plus
+                      </v-icon>
+
+                      <v-icon
+                        @click="toggleBrewRatioLock"
+                      >
+                        {{ isBrewRatioLocked ? 'mdi-lock' : 'mdi-lock-open-outline' }}
+                      </v-icon>
+                    </template>
+                  </v-slider>
+
                   <v-text-field
                     v-model="brew.grindWeight"
                     outlined
                     type="number"
                     label="Dose"
-                    @change="recalculateBrewRatio"
+                    @change="onDoseChange"
                   >
                     <template v-slot:append-outer v-if="shouldShowStrengthImprovement">
                       <v-tooltip bottom>
@@ -111,35 +146,8 @@
                     type="number"
                     label="Water Volume"
                     suffix="mL"
-                    @change="recalculateBrewRatio"
+                    @change="onWaterVolumeChange"
                   />
-
-                  <v-subheader class="pl-0">Brew Ratio</v-subheader>
-
-                  <v-slider
-                    v-model="brewRatio"
-                    min="10"
-                    max="20"
-                    inverse-label
-                    :label="String(brewRatio)"
-                    @change="recalculateDoseFromBrewRatio"
-                  >
-                    <template v-slot:prepend>
-                      <v-icon
-                        @click="decrementBrewRatio"
-                      >
-                        mdi-minus
-                      </v-icon>
-                    </template>
-
-                    <template v-slot:append>
-                      <v-icon
-                        @click="incrementBrewRatio"
-                      >
-                        mdi-plus
-                      </v-icon>
-                    </template>
-                  </v-slider>
                 </v-list-item-content>
               </v-list-item>
             </v-card>
@@ -494,20 +502,24 @@ export default class CreateBrew extends Vue {
     @Mutation('SET_TITLE')
     setAppBarTitle!: (title: string) => void;
 
+    isBrewRatioLocked = false;
+
     get hasBrewStepsRemaining() {
       return this.brewStep < 4;
     }
 
     incrementBrewRatio() {
       this.brewRatio += 1;
-
-      this.recalculateDoseFromBrewRatio();
+      this.brew.waterVolume = this.brewRatio * this.brew.grindWeight;
     }
 
     decrementBrewRatio() {
       this.brewRatio -= 1;
+      this.brew.waterVolume = this.brewRatio * this.brew.grindWeight;
+    }
 
-      this.recalculateDoseFromBrewRatio();
+    toggleBrewRatioLock() {
+      this.isBrewRatioLocked = !this.isBrewRatioLocked;
     }
 
     incrementTimer() {
@@ -593,16 +605,29 @@ export default class CreateBrew extends Vue {
       }
     }
 
+    onDoseChange() {
+      if (this.isBrewRatioLocked) {
+        this.brew.waterVolume = this.brewRatio * this.brew.grindWeight;
+      } else {
+        this.recalculateBrewRatio();
+      }
+    }
+
+    onWaterVolumeChange() {
+      if (this.isBrewRatioLocked) {
+        this.brew.grindWeight = this.brew.waterVolume / this.brewRatio;
+      } else {
+        this.recalculateBrewRatio();
+      }
+    }
+
     recalculateBrewRatio() {
       this.brewRatio = this.brew.waterVolume / this.brew.grindWeight;
     }
 
-    recalculateDoseFromBrewRatio() {
-      this.brew.grindWeight = this.brew.waterVolume / this.brewRatio;
-    }
-
     async loadPreviousBrew() {
       this.previousBrew = await this.getMostRecentBrewByBeanId(this.beanId);
+      this.recalculateBrewRatio();
     }
 
     get getBrewImprovements() {
