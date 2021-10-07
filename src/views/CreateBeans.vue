@@ -94,7 +94,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Bean from '@/models/beans';
-import { beansCollection, storage } from '@/services/firebase';
+import { beansCollection, roastersCollection, storage } from '@/services/firebase';
 import {
   mapGetters,
   mapActions,
@@ -124,6 +124,7 @@ export default Vue.extend({
       'Brazil',
       'Ethiopia',
       'Burundi',
+      'Columbia',
       'Kenya',
       'Costa Rica',
       'Guatamula',
@@ -186,6 +187,22 @@ export default Vue.extend({
         this.beanModel.id = createdBeanDocument.id;
 
         await beansCollection.doc(this.beanModel.id).set({ ...this.beanModel });
+      }
+
+      const roasterQuery = await roastersCollection
+        .where('name', '==', this.beanModel.roaster)
+        .limit(1)
+        .get();
+
+      if (roasterQuery.size === 0) {
+        const newRoaster = new Roaster();
+        newRoaster.name = this.beanModel.roaster;
+
+        const newRoasterDocument = await roastersCollection.add({ ...newRoaster });
+
+        newRoaster.id = newRoasterDocument.id;
+
+        await newRoasterDocument.update({ ...newRoaster });
       }
 
       this.$router.push({ name: 'Beans' });
