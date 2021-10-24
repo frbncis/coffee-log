@@ -18,7 +18,7 @@ import VueRouter from 'vue-router';
 let lastVisible:
 firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData> | null = null;
 
-const beanSearch = async (
+export const beanSearch = async (
   startAfterBeanName = '',
   searchFilter: BeanSearchFilter,
   userId: string) => {

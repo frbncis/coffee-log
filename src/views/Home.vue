@@ -4,70 +4,34 @@
       v-if="userHasRecentBeans"
     >
       <h1 class="title">Recently Brewed</h1>
-        <swiper ref="recentBeanSwiper" :options="recentBeanSwiperOptions">
-          <swiper-slide
-            v-for="bean in recentBeans"
-            :key="'bean-cell-' + bean.id"
-          >
-            <v-col class="pl-0 ml-0" cols='12'>
-              <v-skeleton-loader
-                class="mx-auto"
-                type="card"
-                :loading="loading"
-              >
-                <v-card
-                  @click.stop="() => goToBeanDetails(bean.id)"
-                >
-                  <v-img
-                    :src="bean.imageUrl"
-                    class="align-end"
-                    aspect-ratio="1"
-                  >
-                    <template v-slot:placeholder>
-                      <v-row
-                        class="fill-height ma-0"
-                        align="center"
-                        justify="center"
-                      >
-                        <v-progress-circular
-                          indeterminate
-                          color="grey lighten-5" />
-                      </v-row>
-                    </template>
-                  </v-img>
-                  <v-card-title class="subtitle-2" v-text="bean.name" />
-                </v-card>
-              </v-skeleton-loader>
-            </v-col>
-          </swiper-slide>
-        </swiper>
-        <v-row>
-          <v-col cols=12 class="swiper-pagination pt-0 mt-0" slot="pagination"/>
-        </v-row>
+        <swipeable-bean-row
+          :beans="recentBeans"
+          @bean-clicked="goToBeanDetails"
+        />
       </div>
+
+    <div>
+      <h1 class="title">Leaderboard - Season 4</h1>
+        <swipeable-bean-row
+          :beans="leaderboardS4"
+          @bean-clicked="goToBeanDetails"
+        />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { Component, Ref } from 'vue-property-decorator';
+import { Component } from 'vue-property-decorator';
 import { Action, Mutation, State } from 'vuex-class';
-import BeansList from '@/components/BeansList.vue';
 import Bean from '@/models/beans';
-import { Swiper, SwiperSlide, directive } from 'vue-awesome-swiper';
-import SwiperClass from 'swiper';
-import { User } from '../store';
+import SwipeableBeanRow from '@/components/SwipeableBeanRow.vue';
+import { beanSearch, User } from '../store';
 import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
-import 'swiper/css/swiper.css';
 
 @Component({
   components: {
-    'beans-list': BeansList,
-    Swiper,
-    SwiperSlide,
-  },
-  directives: {
-    swiper: directive,
+    'swipeable-bean-row': SwipeableBeanRow,
   },
 })
 export default class Home extends Vue {
@@ -75,6 +39,8 @@ export default class Home extends Vue {
   user!: User;
 
   recentBeans: Bean[] = [];
+
+  leaderboardS4: Bean[] = [];
 
   @Action
   getBeanById!: (beanId: string) => Promise<Bean>
@@ -88,22 +54,6 @@ export default class Home extends Vue {
   setTitle!: (appBarTitle: string) => void;
 
   private beansHasLoadedOnce = false;
-
-  recentBeanSwiperOptions = {
-    slidesPerView: 2,
-    spaceBetween: 10,
-    pagination: {
-      el: '.swiper-pagination',
-      clickable: true,
-    },
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Ref() readonly recentBeanSwiper!: any;
-
-  get swiper() {
-    return this.recentBeanSwiper.$swiper as SwiperClass;
-  }
 
   get userHasRecentBeans() {
     if (this.user.data.recentBeans.length > 0) {
@@ -123,9 +73,18 @@ export default class Home extends Vue {
     this.loading = false;
   }
 
-  mounted() {
+  async mounted() {
     this.setTopNavigation([]);
     this.setTitle('Coffee Log');
+
+    const results = await beanSearch(undefined, {
+      roasterName: '',
+      filterByLiked: false,
+      beanName: '',
+      beanTypes: ['leaderboard_season4'],
+    }, '');
+
+    this.leaderboardS4 = results.docs.map((doc) => doc.data() as Bean);
   }
 
   async updateRecentBeansAsync() {
