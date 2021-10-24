@@ -176,7 +176,7 @@ export default class Beans extends Vue {
     this.beanSearchFilter.filterByLiked = this.filterByLiked;
     this.beanSearchFilter.beanTypes = this.beanTypes;
 
-    const newQuery: BeanSearchFilterQuery = {
+    const newQuery = {
       ...this.$route.query,
       roaster: this.beanSearchFilter.roasterName,
       filterByLiked: this.beanSearchFilter.filterByLiked.toString(),
@@ -184,16 +184,16 @@ export default class Beans extends Vue {
     };
 
     if (!newQuery.roaster) {
-      delete newQuery.roaster;
+      delete (newQuery as BeanSearchFilterQuery).roaster;
     }
 
     if (!newQuery.filterByLiked) {
-      delete newQuery.filterByLiked;
+      delete (newQuery as BeanSearchFilterQuery).filterByLiked;
     }
 
     // Remove the beanType query string if it's empty.
     if (!this.beanTypes) {
-      delete newQuery.beanTypes;
+      delete (newQuery as BeanSearchFilterQuery).beanTypes;
     }
 
     this.$router.replace({
