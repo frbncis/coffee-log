@@ -176,18 +176,18 @@ export default class Beans extends Vue {
     this.beanSearchFilter.filterByLiked = this.filterByLiked;
     this.beanSearchFilter.beanTypes = this.beanTypes;
 
-    const newQuery = {
+    const newQuery: {[key: string]: string|undefined} = {
       ...this.$route.query,
-      roaster: this.beanSearchFilter.roasterName,
+      roasterName: this.beanSearchFilter.roasterName,
       filterByLiked: this.beanSearchFilter.filterByLiked.toString(),
-      beanTypes: this.beanSearchFilter.beanTypes,
     };
 
-    if (!newQuery.roaster) {
-      delete (newQuery as BeanSearchFilterQuery).roaster;
+    if (this.beanSearchFilter.roasterName === ''
+      || this.beanSearchFilter.roasterName === undefined) {
+      delete newQuery.roasterName;
     }
 
-    if (!newQuery.filterByLiked) {
+    if (!this.beanSearchFilter.filterByLiked) {
       delete (newQuery as BeanSearchFilterQuery).filterByLiked;
     }
 

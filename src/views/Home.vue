@@ -1,7 +1,8 @@
 <template>
-  <div class="pt-5 pl-3 pr-3">
+  <div>
     <div
       v-if="userHasRecentBeans"
+      class="pt-5 pl-3 pr-3"
     >
       <h1 class="title">Recently Brewed</h1>
         <swipeable-bean-row
@@ -10,8 +11,16 @@
         />
       </div>
 
-    <div>
-      <h1 class="title">Leaderboard - Season 4</h1>
+    <div class="pt-5 pl-3 pr-3">
+      <h1
+        class="title"
+        @click="goToLeaderboardSeason4Beans"
+      >
+        Leaderboard - Season 4
+        <v-icon>
+          mdi-chevron-right
+        </v-icon>
+      </h1>
         <swipeable-bean-row
           :beans="leaderboardS4"
           @bean-clicked="goToBeanDetails"
@@ -113,6 +122,10 @@ export default class Home extends Vue {
 
   goToBeanDetails(beanId: string) {
     this.$router.push({ name: 'Bean', params: { beanId } });
+  }
+
+  goToLeaderboardSeason4Beans() {
+    this.$router.push({ name: 'Beans', query: { beanTypes: 'leaderboard_season4' } });
   }
 }
 </script>
