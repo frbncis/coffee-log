@@ -71,6 +71,12 @@ import Bean from '../models/beans';
 import BottomNavigatorButtonViewModel from '../components/bottomNavigator/bottomNavigatorButtonViewModel';
 import Roaster from '../models/roaster';
 
+interface BeanSearchFilterQuery {
+  roaster?: string;
+  filterByLiked?: string;
+  beanTypes?: string[];
+}
+
 @Component({
   components: {
     'beans-list': BeansList,
@@ -120,16 +126,15 @@ export default class Beans extends Vue {
 
   filterByLiked = false;
 
+  beanTypes: string[] = [];
+
   mounted() {
     this.setTitle('Beans');
     this.setTopNavigation([]);
   }
 
   async created() {
-    await this.getBeans();
-    await this.getRoasters();
-
-    const { roaster, filterByLiked } = this.$route.query;
+    const { roaster, filterByLiked, beanTypes } = this.$route.query;
 
     if (roaster) {
       this.roasterFilter = roaster as string;
@@ -140,6 +145,20 @@ export default class Beans extends Vue {
       this.filterByLiked = (filterByLiked === 'true');
       this.updateBeanSearchFilter();
     }
+
+    // Update the bean type if it's in the query string.
+    if (beanTypes?.length > 0) {
+      if (Array.isArray(beanTypes)) {
+        this.beanTypes = beanTypes as Array<string>;
+      } else {
+        this.beanTypes = [beanTypes];
+      }
+
+      this.updateBeanSearchFilter();
+    }
+
+    await this.getBeans();
+    await this.getRoasters();
   }
 
   get loading() {
@@ -155,19 +174,26 @@ export default class Beans extends Vue {
     this.beanSearchFilter.beanName = this.appSearchText;
     this.beanSearchFilter.roasterName = this.roasterFilter;
     this.beanSearchFilter.filterByLiked = this.filterByLiked;
+    this.beanSearchFilter.beanTypes = this.beanTypes;
 
-    const newQuery = {
+    const newQuery: {[key: string]: string|undefined} = {
       ...this.$route.query,
-      roaster: this.beanSearchFilter.roasterName,
+      roasterName: this.beanSearchFilter.roasterName,
       filterByLiked: this.beanSearchFilter.filterByLiked.toString(),
     };
 
-    if (!newQuery.roaster) {
-      delete newQuery.roaster;
+    if (this.beanSearchFilter.roasterName === ''
+      || this.beanSearchFilter.roasterName === undefined) {
+      delete newQuery.roasterName;
     }
 
-    if (!newQuery.filterByLiked) {
-      delete newQuery.filterByLiked;
+    if (!this.beanSearchFilter.filterByLiked) {
+      delete (newQuery as BeanSearchFilterQuery).filterByLiked;
+    }
+
+    // Remove the beanType query string if it's empty.
+    if (!this.beanTypes) {
+      delete (newQuery as BeanSearchFilterQuery).beanTypes;
     }
 
     this.$router.replace({

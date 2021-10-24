@@ -18,7 +18,7 @@ import VueRouter from 'vue-router';
 let lastVisible:
 firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData> | null = null;
 
-const beanSearch = async (
+export const beanSearch = async (
   startAfterBeanName = '',
   searchFilter: BeanSearchFilter,
   userId: string) => {
@@ -38,6 +38,15 @@ const beanSearch = async (
     if (startAfterBeanName !== '') {
       beanQuery = beanQuery.startAfter(startAfterBeanName);
     }
+  }
+
+  // Filter out by bean type
+  if (searchFilter.beanTypes.length > 0) {
+    beanQuery = beanQuery.where(
+      'beanTypes',
+      'array-contains',
+      searchFilter.beanTypes.join(','),
+    );
   }
 
   if (searchFilter.roasterName) {

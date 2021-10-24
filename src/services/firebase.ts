@@ -34,6 +34,8 @@ class BeanSearchFilter {
   beanName = '';
 
   filterByLiked = false;
+
+  beanTypes: string[] = [];
 }
 
 export {

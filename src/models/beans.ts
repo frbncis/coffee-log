@@ -18,4 +18,6 @@ export default class Bean {
   tastingNotes: string[] = []
 
   imageUrl = ''
+
+  beanTypes = []
 }
