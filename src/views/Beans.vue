@@ -149,10 +149,8 @@ export default class Beans extends Vue {
     // Update the bean type if it's in the query string.
     if (beanTypes?.length > 0) {
       if (Array.isArray(beanTypes)) {
-        console.log('got a array of bean type', beanTypes);
         this.beanTypes = beanTypes as Array<string>;
       } else {
-        console.log('got a single bean type', beanTypes);
         this.beanTypes = [beanTypes];
       }
 

@@ -761,8 +761,6 @@ export default class CreateBrew extends Vue {
       let a = (this.brew.brewTimeMilliseconds - this.currentBrewRecipeStep.startTimeMilliseconds) / (this.currentBrewRecipeStep.endTimeMilliseconds - this.currentBrewRecipeStep.startTimeMilliseconds);
       a *= 100;
 
-      // console.log(this.currentBrewRecipeStep);
-      // console.log(a);
       return 100 - a;
     }
 
