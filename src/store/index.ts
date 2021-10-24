@@ -40,6 +40,15 @@ const beanSearch = async (
     }
   }
 
+  // Filter out by bean type
+  if (searchFilter.beanTypes.length > 0) {
+    beanQuery = beanQuery.where(
+      'beanTypes',
+      'array-contains',
+      searchFilter.beanTypes.join(','),
+    );
+  }
+
   if (searchFilter.roasterName) {
     beanQuery = beanQuery.where('roaster', '==', searchFilter.roasterName);
   }
